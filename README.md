@@ -36,19 +36,9 @@ This is the demo banking backend application, built using Spring Boot. It provid
 ## Installation
 
 ### Prerequisites
-- **Java 17 or higher**: Ensure you have Java installed.
+- **Java 17 or higher**
 
-### Steps to Run the Project
-
-#### Clone the Repository:
-
-#### Configure the Database:
-
-
-#### Build the Project:
-
-
-#### Run the Application:
+### Run the Application:
 
 The application will start on `http://localhost:8886`.
 
