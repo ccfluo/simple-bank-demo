@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: simplebank
+  autoconfigure:
+    imports:
+      - com.simple.bank.config.SimpleBankWebAutoConfiguration
+  profiles:
+    active: default
+  jackson:
+    default-property-inclusion: non_null  # 序列化时排除值为 null 的字段
+  cloud:                              #phoebe
+    sentinel:
+      transport:
+        dashboard: 127.0.0.1:7070      #phoebe
+        port: 8719
+      eager: true
+#      web-context-unify: false
+#      filter:
+#        order: -2147483648 # 设置最高优先级（值越小优先级越高）
+
+server:
+  port: 8886
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true  # 开启下划线转驼峰映射
+
+
+#debug: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: configprops  # 暴露配置端点
+  endpoint:
+    configprops:
+      show-values: always  # 显示配置值（默认只显示键）

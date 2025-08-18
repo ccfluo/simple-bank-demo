@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/simplebank?useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: Paige123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # Redis
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0 # 数据库索引
+  #    password: dev #
+
+logging:
+  path: ./log
+#  level:
+#    com.alibaba: TRACE # 跟踪自动配置加载细节
+#    org.springframework.boot.context.config: DEBUG

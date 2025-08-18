@@ -1,0 +1,186 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.3.10</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+  <groupId>com.simple.bank</groupId>
+  <artifactId>simpleBank</artifactId>
+<!--  <packaging>war</packaging>-->
+  <version>1.0-SNAPSHOT</version>
+  <name>simpleBank app</name>
+  <description>Simple Bank Demo project</description>
+  <url/>
+  <licenses>
+    <license/>
+  </licenses>
+  <developers>
+    <developer/>
+  </developers>
+  <scm>
+    <connection/>
+    <developerConnection/>
+    <tag/>
+    <url/>
+  </scm>
+  <properties>
+    <java.version>17</java.version>
+    <!--define mybatis version-->
+    <mybatis.version>3.0.5</mybatis.version>
+  </properties>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud 2023.0.3 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2023.0.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- 对应Spring Cloud 2023.0.3的Alibaba版本 -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>2023.0.1.0</version> <!-- 正确匹配的版本 -->
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!--dependency>
+        <groupId>org.thymeleaf.extras</groupId>
+        <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+    </dependency-->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Spring Cloud Alibaba Sentinel phoebe 核心依赖 -->
+    <dependency>
+       <groupId>com.alibaba.cloud</groupId>
+       <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.18.0</version>
+    </dependency>
+    <!-- lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+      <scope>compile</scope>
+    </dependency>
+    <!-- mybatis-spring-boot-starter -->
+    <dependency>
+      <groupId>org.mybatis.spring.boot</groupId>
+      <artifactId>mybatis-spring-boot-starter</artifactId>
+      <version>${mybatis.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <version>8.3.0</version>
+    </dependency>
+    <!-- druid -->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>druid</artifactId>
+      <version>1.2.27</version>
+    </dependency>
+    <!-- mybatis end-->
+<!--     <dependency>-->
+<!--         <groupId>com.github.xingfudeshi</groupId> &lt;!&ndash; TODO https://github.com/xiaoymin/knife4j/issues/874 &ndash;&gt;-->
+<!--         <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>-->
+<!--         <version>4.6.0</version>-->
+<!--     </dependency>-->
+     <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
+     <dependency>
+         <groupId>org.hibernate.validator</groupId>
+         <artifactId>hibernate-validator</artifactId>
+         <version>8.0.2.Final</version>
+     </dependency>
+     <!-- print application.yml -->
+     <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-actuator</artifactId>
+     </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-data-redis</artifactId>
+          <version>3.4.5</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-json -->
+      <dependency>
+          <groupId>cn.hutool</groupId>
+          <artifactId>hutool-json</artifactId>
+          <version>5.8.36</version>
+      </dependency>
+      <!-- h20250818 sentinel added -->
+<!--      <dependency>-->
+<!--          <groupId>com.alibaba.csp</groupId>-->
+<!--          <artifactId>sentinel-core</artifactId>-->
+<!--          <version>1.8.8</version>-->
+<!--      </dependency>-->
+<!--      &lt;!&ndash; Sentinel 接入控制台 &ndash;&gt;-->
+<!--      <dependency>-->
+<!--          <groupId>com.alibaba.csp</groupId>-->
+<!--          <artifactId>sentinel-transport-simple-http</artifactId>-->
+<!--          <version>1.8.8</version>-->
+<!--      </dependency>-->
+<!--      &lt;!&ndash; Sentinel support SpringMVC &ndash;&gt;-->
+<!--      <dependency>-->
+<!--          <groupId>com.alibaba.csp</groupId>-->
+<!--          <artifactId>sentinel-spring-webmvc-adapter</artifactId>-->
+<!--          <version>1.8.8</version>-->
+<!--      </dependency>-->
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-configuration-processor</artifactId>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
+

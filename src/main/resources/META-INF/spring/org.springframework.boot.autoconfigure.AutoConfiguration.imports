@@ -1,0 +1,3 @@
+# 自定义的自动配置类
+com.simple.bank.config.SimpleBankWebAutoConfiguration
+# com.simple.bank.config.AppApiAutoConfiguration
