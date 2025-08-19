@@ -103,6 +103,8 @@ public class CustomerMaintServiceImpl implements CustomerMaintService {
                     auditLogService.toJson(updatedCustomerDTO),
                     customerUpdateRequest.getOperContext().getUserId()
             );
+            // redis delayed double deletion
+            customerRedisService.delete(customerEntity.getCustomerId());
             return updatedCustomerDTO;
         } catch (DuplicateKeyException e) {
             throw new BusinessException("DUP_KEY", "Customer existing");

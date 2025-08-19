@@ -104,6 +104,8 @@ public class AccountMaintServiceImpl implements AccountMaintService {
                     auditLogService.toJson(updatedAccountDTO),
                     accountUpdateRequest.getOperContext().getUserId()
             );
+            // redis delayed double deletion
+            accountRedisService.delete(accountEntity.getCustomerId());
             return updatedAccountDTO;
         } catch (DuplicateKeyException e) {
             throw new BusinessException("DUP_KEY", "Customer existing");
