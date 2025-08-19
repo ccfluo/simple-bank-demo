@@ -13,6 +13,7 @@ public class CustomerEntity {
     private Long customerId;
     private String name;
     private String email;
+    private String mobile;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -81,6 +81,15 @@ public class GlobalExceptionHandler {
         return (new Response("PARM_TYPE_ERROR", ExceptionFormatter.format(e))); // 统一响应格式
     }
 
+//    @ExceptionHandler(value = BlockException.class)
+//    @ResponseBody
+//    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+//    public Response handleblockException(Exception e) {
+//        log.error("Too Many Requests", e); // 警告级别，无需堆栈
+//        return(new Response("TOO_MANY_REQUESTS", ExceptionFormatter.format(e)));
+//
+//    }
+
     @ExceptionHandler(Exception.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -100,13 +109,6 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(value = BlockException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-    public Response handleblockException(Exception e) {
-        log.error("Too Many Requests", e); // 警告级别，无需堆栈
-        return(new Response("TOO_MANY_REQUESTS", ExceptionFormatter.format(e)));
 
-    }
 
 }

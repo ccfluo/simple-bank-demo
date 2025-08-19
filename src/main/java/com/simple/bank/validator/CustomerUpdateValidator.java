@@ -42,10 +42,11 @@ public class CustomerUpdateValidator {
         // 检查所有可选字段（根据实际DTO中的字段调整）
         boolean hasName = customerDTO.getName() != null && !customerDTO.getName().trim().isEmpty();
         boolean hasEmail = customerDTO.getEmail() != null && !customerDTO.getEmail().trim().isEmpty();
+        boolean hasMobile = customerDTO.getMobile() != null && !customerDTO.getMobile().trim().isEmpty();
         // 若有其他字段（如phone、address等），继续添加判断
 
         // 所有可选字段都为空时，验证失败
-        if (!hasName && !hasEmail) { // 若有更多字段，用 && 连接
+        if (!hasName && !hasEmail && !hasMobile) { // 若有更多字段，用 && 连接
             throw new BusinessException("NO_UPDATE_FIELD",
                     "At least one field must be provided for update");
         }

@@ -93,10 +93,9 @@ public class AccountMaintServiceImpl implements AccountMaintService {
             if (result < 1) {
                 throw new BusinessException("DB_UPDATE_FAIL", "No record updated, pls check backend");
             }
-            accountRedisService.delete(accountEntity.getCustomerId());
+            accountRedisService.delete(accountEntity.getAccountId());
             // get customer details after update
             AccountDTO updatedAccountDTO = accountInquireService.getAccountById(accountUpdateRequest.getAccount().getAccountId());
-            log.info("updatedAccountDTO: " + updatedAccountDTO.toString());
             auditLogService.logAccountOperation(
                     accountUpdateRequest.getAccount().getAccountId(),
                     "UPDATE",
@@ -105,7 +104,7 @@ public class AccountMaintServiceImpl implements AccountMaintService {
                     accountUpdateRequest.getOperContext().getUserId()
             );
             // redis delayed double deletion
-            accountRedisService.delete(accountEntity.getCustomerId());
+            accountRedisService.delete(accountEntity.getAccountId());
             return updatedAccountDTO;
         } catch (DuplicateKeyException e) {
             throw new BusinessException("DUP_KEY", "Customer existing");

@@ -15,6 +15,9 @@ spring:
 
 logging:
   path: ./log
-#  level:
-#    com.alibaba: TRACE # 跟踪自动配置加载细节
-#    org.springframework.boot.context.config: DEBUG
+  level:
+    org:
+      springframework:
+        kafka: ERROR
+      apache:
+       kafka: ERROR

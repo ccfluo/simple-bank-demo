@@ -23,8 +23,8 @@ public interface CustomerMapper {
     List<CustomerEntity> selectAllCustomers();
 
     @Insert("INSERT INTO customer (" +
-            "email, name)" +
-            " VALUES (#{email}, #{name})")
+            "email, name, mobile)" +
+            " VALUES (#{email}, #{name}, #{mobile})")
     //auto increate key id and assignback to entity field customerid
     // if remove option, record will be still inserted// but no customer_id returned into entity.
      @Options(useGeneratedKeys = true, keyProperty = "customerId", keyColumn = "customer_id")

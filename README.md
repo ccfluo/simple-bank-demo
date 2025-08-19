@@ -4,10 +4,10 @@
 This is the demo banking backend application, built using Spring Boot. It provides API for managing customers, bank accounts, and account operations. 
 
 ## Version
-| Version              | Date       |                                                                         |                                                                        
-|----------------------|------------|-------------------------------------------------------------------------|
-| 0.1                  | 2025/08/18 |    Demo version to test different framework                             |
-|  |            |
+| Version | Date       |                                                                                                  |                                                                        
+|---------|------------|--------------------------------------------------------------------------------------------------|
+| 0.1     | 2025/08/18 | Demo version to test different framework                                                         |
+| 0.2     | 2025/08/19 | Trigger SMS/Email notification(pseudocode）via Kafka messaging for deposit/withdrawal transaction |
 
 ## Features
 
@@ -28,10 +28,12 @@ This is the demo banking backend application, built using Spring Boot. It provid
 - **Spring Boot**: Framework for building the backend application.
 - **Mybatis**: For database interactions and ORM (Object-Relational Mapping).
 - **MySQL**: For database storage.
-- **Redis**: For retrieve customer/account information efficiently.
+- **Redis**: In-memory data store for high-speed caching of data, enabling fast access and reducing database load.
 - **Lombok**: For reducing boilerplate code with annotations like `@Data`, `@Getter`, and `@Setter.
 - **Sentinel**: For flow control and service governance.It to safeguard critical services, manage traffic spikes, and enhance fault tolerance.
 - **RESTful API**: Exposes endpoints for CRUD operations and banking transactions.
+- **Kafka**: Distributed messaging system for asynchronous communication, decoupled services, and reliable real-time data streaming.
+
 
 ## Installation
 
@@ -64,5 +66,5 @@ The application will start on `http://localhost:8886`.
 - **GET /transaction/history/{accountId}** Retrieve the transaction history for a specific account.
 
 ### Exception Handling
-The application uses global exception handling to handle specific scenarios:
+The application uses global exception handling to handle specific scenarios
     

@@ -36,5 +36,10 @@ public class CustomerAddValidator {
            throw new BusinessException("INVALID_FIELD",
                    "Customer email is empty");
        }
+
+        if (customerDTO.getMobile() == null || customerDTO.getMobile().trim().isEmpty()){
+            throw new BusinessException("INVALID_FIELD",
+                    "Customer mobile is empty");
+        }
     }
 }

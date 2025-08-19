@@ -19,8 +19,14 @@ public class CustomerSqlProvider {
             if (customerEntity.getEmail() != null && !customerEntity.getEmail().isEmpty()) {
                 WHERE("email = #{email}");
             }
+            if (customerEntity.getMobile() != null && !customerEntity.getMobile().isEmpty()) {
+                WHERE("mobile= #{mobile}");
+            }
             if (customerEntity.getCreatedAt() != null) {
                 WHERE("created_at >= #{createdAt}");
+            }
+            if (customerEntity.getUpdatedAt() != null) {
+                WHERE("updated_at >= #{updatedAt}");
             }
         }}.toString();
     }
@@ -34,6 +40,9 @@ public class CustomerSqlProvider {
             }
             if (customerEntity.getEmail() != null && !customerEntity.getEmail().isEmpty()) {
                 SET("email = #{email}");
+            }
+            if (customerEntity.getMobile() != null && !customerEntity.getMobile().isEmpty()) {
+                SET("mobile = #{mobile}");
             }
 //            if (customerEntity.getUpdatedAt() != null) {
 //                SET("updated_at = #{updatedAt}");
