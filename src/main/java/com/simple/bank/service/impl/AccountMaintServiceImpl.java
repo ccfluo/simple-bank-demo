@@ -5,7 +5,6 @@ import com.simple.bank.api.request.AccountUpdateRequest;
 import com.simple.bank.converter.AccountConverter;
 import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.entity.AccountEntity;
-import com.simple.bank.exception.AccountNotFound;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.AccountMapper;
 import com.simple.bank.service.AccountInquireService;
@@ -81,7 +80,7 @@ public class AccountMaintServiceImpl implements AccountMaintService {
 
     @Override
     @Transactional
-    public AccountDTO updateAccount(AccountUpdateRequest accountUpdateRequest) throws AccountNotFound, BusinessException {
+    public AccountDTO updateAccount(AccountUpdateRequest accountUpdateRequest) throws BusinessException {
 
         accountUpdateValidator.Validate(accountUpdateRequest);
         AccountDTO beforeAccountDTO = accountInquireService.getAccountById(accountUpdateRequest.getAccount().getAccountId());
@@ -119,7 +118,7 @@ public class AccountMaintServiceImpl implements AccountMaintService {
     }
 
     @Override
-    public int deleteAccount(Long accountId) throws AccountNotFound, BusinessException{
+    public int deleteAccount(Long accountId) throws BusinessException{
         accountDeleteValidator.Validate(accountId);
         AccountDTO beforeAccountDTO = accountInquireService.getAccountById(accountId);
         String beforeData = auditLogService.toJson(beforeAccountDTO);

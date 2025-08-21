@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class SentinelGlobalHandler implements BlockExceptionHandler {
             HttpServletRequest request,
             HttpServletResponse response,
             BlockException ex
-    ) throws Exception {
+    ) throws IOException {
         System.out.println("Phoebe Sentinel 限流处理器被调用！");
         String code = "FLOW_LIMIT";
         String msg = "请求被限制";

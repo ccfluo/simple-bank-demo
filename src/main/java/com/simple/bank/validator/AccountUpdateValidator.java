@@ -2,7 +2,6 @@ package com.simple.bank.validator;
 
 import com.simple.bank.api.request.AccountUpdateRequest;
 import com.simple.bank.dto.AccountDTO;
-import com.simple.bank.exception.AccountNotFound;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.service.OtherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ public class AccountUpdateValidator {
 
         // 2. check if account exists or not
         if (!otherService.isAccountExists(accountId)) {
-            throw new AccountNotFound("Account to be updated not existing");
+            throw new BusinessException("NOT_FOUND", "Account to be updated not existing");
         };
 
         // 3. verify if any other field input besides customer id

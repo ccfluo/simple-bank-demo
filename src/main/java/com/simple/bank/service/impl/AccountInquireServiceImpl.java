@@ -3,7 +3,7 @@ package com.simple.bank.service.impl;
 import com.simple.bank.converter.AccountConverter;
 import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.entity.AccountEntity;
-import com.simple.bank.exception.AccountNotFound;
+import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.AccountMapper;
 import com.simple.bank.service.AccountInquireService;
 import com.simple.bank.service.AccountRedisService;
@@ -31,7 +31,7 @@ public class AccountInquireServiceImpl implements AccountInquireService {
 
     @Override
     @Transactional(readOnly = true)
-    public AccountDTO getAccountById(Long accountId) throws AccountNotFound {
+    public AccountDTO getAccountById(Long accountId) throws BusinessException {
         AccountDTO accountDTO;
         accountDTO = accountRedisService.get(accountId);
         if((accountDTO != null) && (accountDTO.getAccountId().equals(accountId))) {
@@ -40,7 +40,7 @@ public class AccountInquireServiceImpl implements AccountInquireService {
         AccountEntity accountEntity = accountMapper.selectAccountById(accountId);  // call Mapper to inquire
 //        return Optional.ofNullable(customerEntity);
         if (accountEntity == null) {
-            throw new AccountNotFound("Account with id " + accountId + " not found");
+            throw new BusinessException("NOT_FOUND", "Account with id " + accountId + " not found");
         } else {
             accountDTO = accountConverter.accountToDto(accountEntity);
             accountRedisService.set(accountDTO);
@@ -50,10 +50,10 @@ public class AccountInquireServiceImpl implements AccountInquireService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AccountDTO> getAllAccounts() throws AccountNotFound {
+    public List<AccountDTO> getAllAccounts() throws BusinessException {
         List<AccountEntity> accountEntityList = accountMapper.selectAllAccounts(); // call Mapper to inquire
         if (accountEntityList.isEmpty()) {
-            throw new AccountNotFound();
+            throw new BusinessException("NOT_FOUND", "Account not found");
         } else {
             List<AccountDTO> accountDTOList = accountEntityList.stream()
                  .map(accountEntity -> accountConverter.accountToDto(accountEntity))
@@ -64,10 +64,10 @@ public class AccountInquireServiceImpl implements AccountInquireService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AccountDTO> getAccountByCustomerId(Long customerId) throws AccountNotFound {
+    public List<AccountDTO> getAccountByCustomerId(Long customerId) throws BusinessException {
         List<AccountEntity> accountEntityList = accountMapper.selectAccountByCustomerId(customerId); // call Mapper to inquire
         if (accountEntityList.isEmpty()) {
-            throw new AccountNotFound();
+            throw new BusinessException("NOT_FOUND", "Account not found");
         } else {
             List<AccountDTO> accountDTOList = accountEntityList.stream()
                     .map(accountEntity -> accountConverter.accountToDto(accountEntity))

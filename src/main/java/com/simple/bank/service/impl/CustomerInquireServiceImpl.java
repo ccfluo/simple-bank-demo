@@ -3,7 +3,7 @@ package com.simple.bank.service.impl;
 import com.simple.bank.converter.CustomerConverter;
 import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.entity.CustomerEntity;
-import com.simple.bank.exception.CustomerNotFound;
+import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.CustomerMapper;
 import com.simple.bank.service.CustomerInquireService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service
@@ -30,7 +31,7 @@ public class CustomerInquireServiceImpl implements CustomerInquireService {
 
     @Override
     @Transactional(readOnly = true)
-    public CustomerDTO getCustomerById(Long customerId) throws CustomerNotFound {
+    public CustomerDTO getCustomerById(Long customerId) throws BusinessException {
         CustomerDTO customerDTO;
         // get customerDTO from redis
         customerDTO = customerRedisService.get(customerId);
@@ -40,7 +41,7 @@ public class CustomerInquireServiceImpl implements CustomerInquireService {
         // if not in redis, then get it from table
         CustomerEntity customerEntity = customerMapper.selectCustomerById(customerId);  // call Mapper to inquire
         if (customerEntity == null) {
-            throw new CustomerNotFound("Customer with id " + customerId + " not found");
+            throw new BusinessException("NOT_FOUND", "Customer with id " + customerId + " not found");
         } else {
             customerDTO = customerConverter.customerToDto(customerEntity);
             customerRedisService.set(customerDTO);
@@ -50,10 +51,10 @@ public class CustomerInquireServiceImpl implements CustomerInquireService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CustomerDTO> getAllCustomers() throws CustomerNotFound {
+    public List<CustomerDTO> getAllCustomers() throws BusinessException {
         List<CustomerEntity> customerEntityList = customerMapper.selectAllCustomers(); // call Mapper to inquire
         if (customerEntityList.isEmpty()) {
-            throw new CustomerNotFound("No customer found");
+            throw new BusinessException("NOT_FOUND", "No customer found");
         } else {
             List<CustomerDTO> customerDTOList = customerEntityList.stream()
                  .map(customerEntity -> customerConverter.customerToDto(customerEntity))

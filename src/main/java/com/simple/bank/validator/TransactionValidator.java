@@ -1,9 +1,7 @@
 package com.simple.bank.validator;
 
-import com.simple.bank.api.request.AccountUpdateRequest;
 import com.simple.bank.api.request.TransactionRequest;
 import com.simple.bank.dto.AccountDTO;
-import com.simple.bank.exception.AccountNotFound;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.service.OtherService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +20,7 @@ public class TransactionValidator {
     public void ValidateDepositTransaction(TransactionRequest transactionRequest) {
 
         if (!otherService.isAccountExists(transactionRequest.getAccountId())){
-            throw new AccountNotFound("Account with id " + transactionRequest.getAccountId()+ " not found");
+            throw new BusinessException("NOT_FOUND", "Account with id " + transactionRequest.getAccountId()+ " not found");
         };
 
         if (transactionRequest.getTransactionAmount().compareTo(BigDecimal.ZERO) <= 0) {
@@ -37,7 +35,7 @@ public class TransactionValidator {
     public void ValidateWithdrawTransaction(TransactionRequest transactionRequest, AccountDTO accountDTO) {
 
         if (!otherService.isAccountExists(transactionRequest.getAccountId())) {
-            throw new AccountNotFound("Account with id " + transactionRequest.getAccountId() + " not found");
+            throw new BusinessException("NOT_FOUND", "Account with id " + transactionRequest.getAccountId() + " not found");
         };
 
         if (transactionRequest.getTransactionAmount().compareTo(BigDecimal.ZERO) <= 0) {

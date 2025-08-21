@@ -4,10 +4,12 @@
 This is the demo banking backend application, built using Spring Boot. It provides API for managing customers, bank accounts, and account operations. 
 
 ## Version
-| Version | Date       |                                                                                                  |                                                                        
-|---------|------------|--------------------------------------------------------------------------------------------------|
-| 0.1     | 2025/08/18 | Demo version to test different framework                                                         |
+| Version | Date       |                                                                                                 |                                                                        
+|---------|------------|-------------------------------------------------------------------------------------------------|
+| 0.1     | 2025/08/18 | Demo version to test different framework                                                        |
 | 0.2     | 2025/08/19 | Trigger SMS/Email notification(pseudocode）via Kafka messaging for deposit/withdrawal transaction |
+| 0.3     | 2025/08/21 | Enhance Global Exceptional handler                                                              |
+
 
 ## Features
 
@@ -18,9 +20,9 @@ This is the demo banking backend application, built using Spring Boot. It provid
 ### Bank Account Management:
 - Create new accounts.
 - Retrieve account details and transaction history.
-- Perform debit, credit operations.
 
 ### Transaction Management:
+- deposit/withdraw money from account
 - View account transactions history.
 
 
@@ -33,7 +35,6 @@ This is the demo banking backend application, built using Spring Boot. It provid
 - **Sentinel**: For flow control and service governance.It to safeguard critical services, manage traffic spikes, and enhance fault tolerance.
 - **RESTful API**: Exposes endpoints for CRUD operations and banking transactions.
 - **Kafka**: Distributed messaging system for asynchronous communication, decoupled services, and reliable real-time data streaming.
-
 
 ## Installation
 

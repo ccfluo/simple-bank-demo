@@ -5,7 +5,6 @@ import com.simple.bank.api.request.CustomerUpdateRequest;
 import com.simple.bank.converter.CustomerConverter;
 import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.entity.CustomerEntity;
-import com.simple.bank.exception.CustomerNotFound;
 import com.simple.bank.mapper.CustomerMapper;
 import com.simple.bank.service.AuditLogService;
 import com.simple.bank.service.CustomerInquireService;
@@ -81,7 +80,7 @@ public class CustomerMaintServiceImpl implements CustomerMaintService {
 
     @Override
     @Transactional
-    public CustomerDTO updateCustomer(CustomerUpdateRequest customerUpdateRequest) throws CustomerNotFound, BusinessException {
+    public CustomerDTO updateCustomer(CustomerUpdateRequest customerUpdateRequest) throws BusinessException {
 
         customerUpdateValidator.Validate(customerUpdateRequest);
         CustomerDTO beforeCustomerDTO = customerInquireService.getCustomerById(customerUpdateRequest.getCustomer().getCustomerId());
@@ -120,7 +119,7 @@ public class CustomerMaintServiceImpl implements CustomerMaintService {
 
     @Override
     @Transactional
-    public int deleteCustomer(Long customerId) throws CustomerNotFound, BusinessException{
+    public int deleteCustomer(Long customerId) throws BusinessException{
         customerDeleteValidator.Validate(customerId);
         CustomerDTO beforeCustomerDTO = customerInquireService.getCustomerById(customerId);
         String beforeData = auditLogService.toJson(beforeCustomerDTO);

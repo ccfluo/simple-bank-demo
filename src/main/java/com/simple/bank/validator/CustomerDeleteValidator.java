@@ -1,7 +1,6 @@
 package com.simple.bank.validator;
 
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.exception.CustomerNotFound;
 import com.simple.bank.service.OtherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,7 +17,7 @@ public class CustomerDeleteValidator {
 
         // 2. check if customer exists or not
         if (!otherService.isCustomerExists(customerId)) {
-            throw new CustomerNotFound("Customer to be deleted not existing");
+            throw new BusinessException("NOT_FOUND", "Customer to be deleted not existing");
         };
 
     }

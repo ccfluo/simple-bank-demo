@@ -1,7 +1,6 @@
 package com.simple.bank.service.kafka;
 
 import com.simple.bank.message.TransactionMessage;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,20 +17,12 @@ public class TransactionMessageProducer {
     @Autowired
     private KafkaTemplate<Object, Object> kafkaTemplate;
 
-//    public SendResult syncSend(TransactionMessage transactionMessage) throws ExecutionException, InterruptedException {
-        // 同步发送消息
-      public void syncSend(TransactionMessage transactionMessage) {
-          try {
-              SendResult sendResult = kafkaTemplate.send(transactionMessage.TOPIC, transactionMessage).get();
-          } catch (InterruptedException e) {
-              throw new RuntimeException(e);
-          } catch (ExecutionException e) {
-              throw new RuntimeException(e);
-          }
+    // 同步发送消息
+//      public void syncSend(TransactionMessage transactionMessage) {
+    public SendResult syncSend(TransactionMessage transactionMessage) throws ExecutionException, InterruptedException{
+          SendResult sendResult = kafkaTemplate.send(transactionMessage.TOPIC, transactionMessage).get();
           log.info("[Transaction Message][transaction id：[{}]]", transactionMessage.getTransactionId());
-
-          //TODO: Phoebe add logic to output sendResult
-//        return sendResult;
+          return sendResult;
     }
 
 //    public CompletableFuture<SendResult<Object, Object>> asyncSend(TransactionMessage transactionMessage) {

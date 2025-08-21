@@ -7,7 +7,6 @@ import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.dto.AccountTransactionDTO;
 import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.entity.AccountTransaction;
-import com.simple.bank.exception.AccountNotFound;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.TransactionMapper;
 import com.simple.bank.service.*;
@@ -48,8 +47,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public AccountTransactionDTO deposit(TransactionRequest transactionRequest)
-            throws AccountNotFound, BusinessException {
+    public AccountTransactionDTO deposit(TransactionRequest transactionRequest) throws BusinessException {
 
         transactionValidator.ValidateDepositTransaction(transactionRequest);
         AccountDTO accountDTO = accountInquireService.getAccountById(transactionRequest.getAccountId());
@@ -85,8 +83,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public AccountTransactionDTO withdraw(TransactionRequest transactionRequest)
-            throws AccountNotFound, BusinessException {
+    public AccountTransactionDTO withdraw(TransactionRequest transactionRequest) throws BusinessException {
 
         AccountDTO accountDTO = accountInquireService.getAccountById(transactionRequest.getAccountId());
         transactionValidator.ValidateWithdrawTransaction(transactionRequest, accountDTO);
@@ -120,7 +117,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<AccountTransactionDTO> getTransactionHistory(Long accountId) throws AccountNotFound {
+    public List<AccountTransactionDTO> getTransactionHistory(Long accountId) throws BusinessException {
         // 验证账户存在
         accountInquireService.getAccountById(accountId);
 

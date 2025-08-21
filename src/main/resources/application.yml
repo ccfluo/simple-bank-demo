@@ -20,6 +20,7 @@ spring:
     producer:
       acks: 1 # 0-不应答。1-leader 应答。all-所有 leader 和 follower 应答。
       retries: 3 # 发送失败时，重试发送的次数
+      retry-backoff-ms: 100  #重试间隔
       key-serializer: org.apache.kafka.common.serialization.StringSerializer # 消息的 key 的序列化
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer # 消息的 value 的序列化
     # Kafka Consumer 配置项
@@ -35,6 +36,13 @@ spring:
     # Kafka Consumer Listener 监听器配置
     listener:
       missing-topics-fatal: false # 消费监听接口监听的主题不存在时，默认会报错。所以通过设置为 false ，解决报错
+    properties:
+      max.block.ms: 25000   #总阻塞超时时间（建议小于等于25秒）
+      request.timeout.ms: 10000  # 单次请求超时（默认30秒，改为10秒）
+      metadata.fetch.timeout.ms: 5000  # 元数据获取超时（默认60秒，改为5秒）
+      metadata.max.retries: 3  # 重试次数
+      socket.connection.setup.timeout.ms: 5000  # 连接建立超时（默认10秒，改为5秒）
+      socket.connection.setup.timeout.max.ms: 5000  # 连接建立最大超时（避免累积重试）
 
 server:
   port: 8886
