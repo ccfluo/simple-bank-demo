@@ -126,4 +126,13 @@ public class TransactionServiceImpl implements TransactionService {
                 .map(transactionConverter::transactionToDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<AccountTransactionDTO> getTransactionBetween(LocalDateTime start, LocalDateTime end) throws BusinessException {
+
+        List<AccountTransaction> transactions = transactionMapper.getTransactionsBetween(start, end);
+        return transactions.stream()
+                .map(transactionConverter::transactionToDto)
+                .collect(Collectors.toList());
+    }
 }

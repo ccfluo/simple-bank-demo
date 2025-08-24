@@ -1,11 +1,9 @@
 package com.simple.bank.mapper;
 
 import com.simple.bank.entity.AccountTransaction;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -21,4 +19,9 @@ public interface TransactionMapper {
 
     @Select("SELECT * FROM transaction_history WHERE account_id = #{accountId} ORDER BY transaction_date DESC")
     List<AccountTransaction> getTransactionsByAccountId(Long accountId);
+
+    @Select("SELECT * FROM transaction_history " +
+            "WHERE transaction_date>= #{start} " +
+              "AND transaction_date< #{end}")
+    List<AccountTransaction> getTransactionsBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

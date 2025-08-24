@@ -4,12 +4,12 @@
 This is the demo banking backend application, built using Spring Boot. It provides API for managing customers, bank accounts, and account operations. 
 
 ## Version
-| Version | Date       |                                                                                                 |                                                                        
-|---------|------------|-------------------------------------------------------------------------------------------------|
-| 0.1     | 2025/08/18 | Demo version to test different framework                                                        |
-| 0.2     | 2025/08/19 | Trigger SMS/Email notification(pseudocode）via Kafka messaging for deposit/withdrawal transaction |
-| 0.3     | 2025/08/21 | Enhance Global Exceptional handler                                                              |
-
+| Version | Date       |                                                                                                  |                                                                        
+|---------|------------|--------------------------------------------------------------------------------------------------|
+| 0.1| 2025/08/18 | Demo version to test different framework                                                         |
+| 0.2| 2025/08/19 | Trigger SMS/Email notification(pseudocode）via Kafka messaging for deposit/withdrawal transaction|
+| 0.3| 2025/08/21 | Enhance Global Exceptional handler                                                               |
+| 0.4| 2025/08/24 | Add transaction summary report at 2am daily                                                      |
 
 ## Features
 
@@ -35,6 +35,7 @@ This is the demo banking backend application, built using Spring Boot. It provid
 - **Sentinel**: For flow control and service governance.It to safeguard critical services, manage traffic spikes, and enhance fault tolerance.
 - **RESTful API**: Exposes endpoints for CRUD operations and banking transactions.
 - **Kafka**: Distributed messaging system for asynchronous communication, decoupled services, and reliable real-time data streaming.
+- **Quartz**: Distributed job scheduling framework used for executing tasks on a schedule (e.g., report generation, data cleanup, periodic synchronization).
 
 ## Installation
 

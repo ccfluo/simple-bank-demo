@@ -4,6 +4,7 @@ import com.simple.bank.api.request.TransactionRequest;
 import com.simple.bank.dto.AccountTransactionDTO;
 import com.simple.bank.exception.BusinessException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TransactionService {
@@ -13,4 +14,6 @@ public interface TransactionService {
     AccountTransactionDTO withdraw(TransactionRequest transactionRequest) throws BusinessException;
 
     List<AccountTransactionDTO> getTransactionHistory(Long accountId) throws BusinessException;
+
+    List<AccountTransactionDTO> getTransactionBetween(LocalDateTime start, LocalDateTime end) throws BusinessException;
 }
