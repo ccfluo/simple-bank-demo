@@ -22,7 +22,7 @@ public class RedissionLock {
         boolean locked = false;
         try {
             if (leaseTimeMillis > 0) {
-                locked = lock.tryLock(leaseTimeMillis, TimeUnit.SECONDS);
+                locked = lock.tryLock(leaseTimeMillis, TimeUnit.MILLISECONDS);
                 if (!locked) {
                     throw new BusinessException("DUP_TXN_LOCK","Transaction is processing");
                 }
@@ -48,12 +48,12 @@ public class RedissionLock {
 
         try {
             // 尝试获取两把锁（最多等待waitTime毫秒）
-            boolean locked1 = lock1.tryLock(leaseTimeMillis, 10, TimeUnit.SECONDS);
+            boolean locked1 = lock1.tryLock(leaseTimeMillis, 500, TimeUnit.MILLISECONDS);
             if (!locked1) {
                 throw new BusinessException("SYSTEM_BUSY", "System busy, try again later");
             }
 
-            boolean locked2 = lock2.tryLock(leaseTimeMillis, 10, TimeUnit.SECONDS);
+            boolean locked2 = lock2.tryLock(leaseTimeMillis, 500, TimeUnit.MILLISECONDS);
             if (!locked2) {
                 lock1.unlock(); // 释放已获取的第一把锁
                 throw new BusinessException("SYSTEM_BUSY", "System busy, try again later");
