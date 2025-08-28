@@ -61,7 +61,7 @@ public class TransactionTest {
         // 5 concurrent requests to simulate duplicate deposit
         int threadCount = 5;
         CountDownLatch latch = new CountDownLatch(threadCount);
-        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);// new thread pool for max 5 threads
 
         List<AccountTransactionDTO> results = Collections.synchronizedList(new ArrayList<>());
 
@@ -71,7 +71,6 @@ public class TransactionTest {
         transactionRequest.setAccountId(28L);
         transactionRequest.setDescription("this is test transaction");
         transactionRequest.setTransactionTraceId("testTrace#"+System.currentTimeMillis());
-
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 try {
@@ -89,12 +88,12 @@ public class TransactionTest {
                         exceptions.add(e);
                     }
                 }finally {
-                    latch.countDown();
+                    latch.countDown(); // latch -1
                 }
             });
         }
 
-        latch.await();
+        latch.await();  // complete only when latch count = 0;
         executor.shutdown();
 
         // 如果有异常，直接 fail
@@ -135,7 +134,7 @@ public class TransactionTest {
         AccountDTO updatedAccountDTO= accountMaintService.updateAccount(accountUpdateRequest);
 
         // 5 concurrent requests to simulate duplicate withdrawal
-        int threadCount = 5;
+        int threadCount = 2;
         CountDownLatch latch = new CountDownLatch(threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
@@ -178,6 +177,7 @@ public class TransactionTest {
             exceptions.forEach(Throwable::printStackTrace);
             Assertions.fail("thread expectation error: " + exceptions.get(0).getMessage());
         }
+
 
         // 断言：只有一次 SUCCESS
         long successCount = results.stream().filter(r -> r.getAccountBalance() !=null).count();

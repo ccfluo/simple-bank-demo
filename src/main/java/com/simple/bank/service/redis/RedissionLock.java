@@ -34,7 +34,9 @@ public class RedissionLock {
             Thread.currentThread().interrupt();
             throw new BusinessException("Interrupted while acquiring lock" + e);
         }finally {
-            lock.unlock();
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 
