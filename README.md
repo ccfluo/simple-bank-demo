@@ -13,8 +13,7 @@ This is the demo banking backend application, built using Spring Boot. It provid
 | 0.5     | 2025/08/28 | **New functions:** <br> - Wealth product purchase <br> - Money Transfer                          |
 |         |            |                                                                                                  |
 |         |            |                                                                                                  |
-    
-|
+
 
 ## Features
 
@@ -56,6 +55,7 @@ This is the demo banking backend application, built using Spring Boot. It provid
 The application will start on `http://localhost:8886`.
 
 ## API Endpoints
+#### api prefix /admin is configured for all controllers
 
 ### Customer Management
 - **GET /customer/all**: Retrieve a list of all customers.
@@ -75,6 +75,10 @@ The application will start on `http://localhost:8886`.
 - **POST /transaction/withdraw**: Withdraw money from a banking account.
 - **POST /transaction/deposit**: Deposit money to a banking account.
 - **GET /transaction/history/{accountId}** Retrieve the transaction history for a specific account.
+- **POST /transaction/transfer** transfer money to other account
+
+### Wealth Management
+- **POST /product/purchase**: Purchase a wealth product.
 
 ### Exception Handling
 The application uses global exception handling to handle specific scenarios
