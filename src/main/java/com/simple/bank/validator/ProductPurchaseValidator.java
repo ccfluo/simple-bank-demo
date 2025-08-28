@@ -67,8 +67,7 @@ public class ProductPurchaseValidator {
         //4. validate traceid to avoid duplicate trx
         ProductPurchaseEntity productPurseEntity = productPurchaseMapper.getPurchaseByTraceId(request.getTransactionTraceId());
         if (productPurseEntity != null) {
-            throw new BusinessException("DUP_TRX", "Purchase " + request.getTransactionTraceId() + " processed by other transaction");
+            throw new BusinessException("DUPLICATE_TRX", "Purchase " + request.getTransactionTraceId() + " processed by other transaction");
         }
-
     }
 }

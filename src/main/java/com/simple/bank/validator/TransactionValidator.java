@@ -1,7 +1,6 @@
 package com.simple.bank.validator;
 
 import com.simple.bank.api.request.TransactionRequest;
-import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.TransactionMapper;
 import com.simple.bank.service.biz.OtherService;
@@ -21,7 +20,7 @@ public class TransactionValidator {
     @Autowired
     private TransactionMapper transactionMapper;
 
-    public void ValidateDepositTransaction(TransactionRequest transactionRequest) {
+    public void ValidateCreditAccountBalance(TransactionRequest transactionRequest) {
 
         if (!otherService.isAccountExists(transactionRequest.getAccountId())){
             throw new BusinessException("NOT_FOUND", "Account with id " + transactionRequest.getAccountId()+ " not found");
@@ -42,26 +41,26 @@ public class TransactionValidator {
 //        String transactionTraceId = transactionRequest.getTransactionTraceId();  #phoebe
 //        AccountTransaction accountTransaction = transactionMapper.getTransactionsByTraceId(transactionTraceId);
 //        if (accountTransaction != null) {
-//            throw new BusinessException("DUP_TRX", "Transaction " + transactionTraceId + " processed by other transaction");
+//            throw new BusinessException("DUPLICATE_TRX", "Transaction " + transactionTraceId + " processed by other transaction");
 //        }
     }
 
-    public void ValidateWithdrawTransaction(TransactionRequest transactionRequest, AccountDTO accountDTO) {
+    public void ValidateDebitAccountBalance(TransactionRequest transactionRequest, BigDecimal originalBalance) {
 
 //        if (!otherService.isAccountExists(transactionRequest.getAccountId())) {
 //            throw new BusinessException("NOT_FOUND", "Account with id " + transactionRequest.getAccountId() + " not found");
 //        };
 
         if (transactionRequest.getTransactionAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BusinessException("INVALID_FIELD", "Withdraw amount must > 0");
+            throw new BusinessException("INVALID_FIELD", "Debit amount must > 0");
         }
 
-        if (transactionRequest.getTransactionAmount().compareTo(accountDTO.getBalance()) > 0) {
-            throw new BusinessException("INVALID_FIELD", "Insufficient balance");
+        if (transactionRequest.getTransactionAmount().compareTo(originalBalance) > 0) {
+            throw new BusinessException("INSUFF_BALN", "Insufficient Balance");
         }
 
         if (transactionRequest.getDescription() == null || transactionRequest.getDescription().trim().isEmpty()) {
-            throw new BusinessException("INVALID_FIELD", "Withdraw Description must not be empty");
+            throw new BusinessException("INVALID_FIELD", "Description must not be empty");
         }
 
         if (transactionRequest.getTransactionTraceId() == null || transactionRequest.getTransactionTraceId().trim().isEmpty()) {

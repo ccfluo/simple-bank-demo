@@ -16,7 +16,6 @@ import com.simple.bank.service.redis.RedissionLock;
 import com.simple.bank.validator.TransactionValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,16 +81,16 @@ public class TransactionServiceImpl implements TransactionService {
     public AccountTransactionDTO creditAccountBalance(TransactionRequest transactionRequest) throws BusinessException {
 //        AccountDTO accountDTO = accountInquireService.getAccountById(transactionRequest.getAccountId());
         AccountEntity accountEntity = accountMapper.getAccountByIdForUpdate(transactionRequest.getAccountId());
-        transactionValidator.ValidateDepositTransaction(transactionRequest);
-//        AccountDTO accountDTO = accountConverter.accountToDto(accountEntity);
-//        accountDTO.setBalance(accountDTO.getBalance().add(transactionRequest.getTransactionAmount()));
-        AccountDTO accountDTO = new AccountDTO();
-        accountDTO.setAccountId(accountEntity.getAccountId());
-        accountDTO.setBalance(accountEntity.getBalance().add(transactionRequest.getTransactionAmount()));
+        transactionValidator.ValidateCreditAccountBalance(transactionRequest);
 
         AccountUpdateRequest accountUpdateRequest = new AccountUpdateRequest();
         accountUpdateRequest.setOperContext(transactionRequest.getOperContext());
+        // only update account balance, no need get all fields from accountEntity and update all others without change
+        AccountDTO accountDTO = new AccountDTO();
+        accountDTO.setAccountId(accountEntity.getAccountId());
+        accountDTO.setBalance(accountEntity.getBalance().add(transactionRequest.getTransactionAmount()));
         accountUpdateRequest.setAccount(accountDTO);
+
         AccountDTO updatedAccountDTO = accountMaintService.updateAccount(accountUpdateRequest);
 
         //log transaction to transaction history
@@ -110,13 +109,7 @@ public class TransactionServiceImpl implements TransactionService {
                 throw new BusinessException("DB_UPDATE_FAIL", "No record inserted, pls check backend");
             }
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_KEY", "Duplicate transaction");
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException("DATA_INTEGRITY", "Dat Integrity Violation");
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("UNKNOWN_ERROR", "Unknown Error: " + e);
+            throw new BusinessException("DUPLICATE_KEY", "Duplicate transaction");
         }
 
         AccountTransactionDTO accountTransactionDTO = transactionConverter.transactionToDto(accountTransaction);
@@ -151,17 +144,18 @@ public class TransactionServiceImpl implements TransactionService {
         if (accountEntity == null) {
             throw new BusinessException("NOT_FOUND", "Account with id " + transactionRequest.getAccountId() + " not found");
         }
-//        AccountDTO accountDTO = accountConverter.accountToDto(accountEntity);
-        AccountDTO accountDTO = new AccountDTO();
-        accountDTO.setAccountId(accountEntity.getAccountId());
-        accountDTO.setBalance(accountEntity.getBalance());
 
-        transactionValidator.ValidateWithdrawTransaction(transactionRequest, accountDTO);
-        accountDTO.setBalance(accountDTO.getBalance().subtract(transactionRequest.getTransactionAmount()));
+        transactionValidator.ValidateDebitAccountBalance(transactionRequest, accountEntity.getBalance());
 
         AccountUpdateRequest accountUpdateRequest = new AccountUpdateRequest();
         accountUpdateRequest.setOperContext(transactionRequest.getOperContext());
+        // only update account balance, no need get all fields from accountEntity and update all others without change
+        AccountDTO accountDTO = new AccountDTO();
+        accountDTO.setAccountId(accountEntity.getAccountId());
+        accountDTO.setBalance(accountEntity.getBalance());
+        accountDTO.setBalance(accountDTO.getBalance().subtract(transactionRequest.getTransactionAmount()));
         accountUpdateRequest.setAccount(accountDTO);
+
         AccountDTO updatedAccountDTO = accountMaintService.updateAccount(accountUpdateRequest);
 
         //log transaction to transaction history
@@ -180,13 +174,7 @@ public class TransactionServiceImpl implements TransactionService {
                 throw new BusinessException("DB_UPDATE_FAIL", "No record inserted, pls check backend");
             }
         }catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_KEY", "Duplicate transaction");
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException("DATA_INTEGRITY", "Dat Integrity Violation");
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("UNKNOWN_ERROR", "Unknown Error: "+e);
+            throw new BusinessException("DUPLICATE_KEY", "Duplicate transaction");
         }
 
         AccountTransactionDTO accountTransactionDTO = transactionConverter.transactionToDto(accountTransaction);

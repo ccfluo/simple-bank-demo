@@ -64,9 +64,6 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         // 2. validate request
         purchaseValidator.validate(request, accountDTO.getBalance());
 
-//        // 2. inquire account info to get customer id
-//        AccountDTO account = accountInquireService.getAccountById(request.getAccountId());
-
         // 3. deduct amount from account
         AccountTransactionDTO accountTransactionDTO = debitAccountBalance(request);
 
@@ -84,7 +81,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         try {
             purchaseMapper.insertPurchase(purchaseEntity);
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_PURCHASE", "Duplicate Purchase");
+            throw new BusinessException("DUPLICATE_KEY", "Duplicate Purchase");
         }
 
         // 6. send purchase notification
@@ -96,7 +93,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
 
     // deduct purchase amount from account
     // call transactionService.debitAccountBalance to make sure transaction history/audit log etc to be handled.
-    //      withdraw has lock + account level and select for update to make sure balance not updated by others
+    //      debitAccountBalance : select for update to make sure balance not updated by others
     private AccountTransactionDTO  debitAccountBalance(ProductPurchaseRequest request) throws BusinessException {
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setOperContext(request.getOperContext());

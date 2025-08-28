@@ -21,13 +21,11 @@ public class CustomerInquireController {
 
     @GetMapping("/{customerId}")
     @SentinelResource("cust_info_hot")    //phoebe sentinel hot parm poc
-//    public ResponseEntity<CustomerDTO> getById(@PathVariable Long customerId) throws CustomerNotFound{
     public ResponseEntity<CustomerInquireResponse> getById(@PathVariable Long customerId){
         CustomerDTO customerDTO = service.getCustomerById(customerId);
         return ResponseEntity.ok(new CustomerInquireResponse(customerDTO));
     }
 
-//    public ResponseEntity<List<CustomerDTO>> getAll() throws CustomerNotFound{
     @GetMapping("/all")
     public ResponseEntity<ListOfCustomerResponse> getAll(){
         List<CustomerDTO> customerDTOList = service.getAllCustomers();

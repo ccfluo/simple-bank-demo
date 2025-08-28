@@ -12,7 +12,6 @@ import com.simple.bank.validator.CustomerDeleteValidator;
 import com.simple.bank.validator.CustomerUpdateValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +50,7 @@ public class CustomerMaintServiceImpl implements CustomerMaintService {
             if (result < 1) {
                 throw new BusinessException("DB_INSERT_FAIL", "No record inserted, pls check backend");
             }
-//            customerRedisService.delete(customerEntity.getCustomerId());
+
             CustomerDTO createdCustomerDTO = customerInquireService.getCustomerById(customerEntity.getCustomerId());
             // output to audit log
             auditLogService.logCustomerOperation(
@@ -63,15 +62,8 @@ public class CustomerMaintServiceImpl implements CustomerMaintService {
             );
             return customerEntity.getCustomerId();
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_KEY", "Customer existing");
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException("DATA_INTEGRITY", "Dat Integrity Violation");
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("UNKNOWN_ERROR", "Unknown Error: "+e);
+            throw new BusinessException("DUPLICATE_KEY", "Customer existing");
         }
-
     }
 
     @Override
@@ -105,13 +97,7 @@ public class CustomerMaintServiceImpl implements CustomerMaintService {
             customerRedisService.delete(customerEntity.getCustomerId());
             return updatedCustomerDTO;
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_KEY", "Customer existing");
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException("DATA_INTEGRITY", e.toString());
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("UNKNOWN_ERROR", e.toString());
+            throw new BusinessException("DUPLICATE_KEY", "Customer existing");
         }
 
     }
@@ -137,13 +123,7 @@ public class CustomerMaintServiceImpl implements CustomerMaintService {
             );
             return(result);
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_KEY", "Customer existing");
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException("DATA_INTEGRITY", e.toString());
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("UNKNOWN_ERROR", e.toString());
+            throw new BusinessException("DUPLICATE_KEY", "Customer existing");
         }
     }
 

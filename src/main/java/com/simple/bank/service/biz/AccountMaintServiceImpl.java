@@ -7,13 +7,11 @@ import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.entity.AccountEntity;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.AccountMapper;
-import com.simple.bank.utlility.ExceptionFormatter;
 import com.simple.bank.validator.AccountAddValidator;
 import com.simple.bank.validator.AccountDeleteValidator;
 import com.simple.bank.validator.AccountUpdateValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +22,7 @@ public class AccountMaintServiceImpl implements AccountMaintService {
     @Autowired
     private AccountMapper accountMapper;  // auto inject the mapper
 
-//  @Autowired 是 Spring 的依赖注入注解，
+    //  @Autowired 是 Spring 的依赖注入注解，
 //  用于自动获取 Spring 容器中已管理的 Bean，并注入到当前类的属性中。
 //  告诉 Spring“我需要这个类型的实例，请从容器里找一个给我
     @Autowired
@@ -52,26 +50,20 @@ public class AccountMaintServiceImpl implements AccountMaintService {
             if (result < 1) {
                 throw new BusinessException("DB_INSERT_FAIL", "No record inserted, pls check backend");
             }
-//            accountRedisService.delete(accountEntity.getCustomerId());
+            accountRedisService.delete(accountEntity.getCustomerId());
             AccountDTO createdAccountDTO = accountInquireService.getAccountById(accountEntity.getAccountId());
             auditLogService.logAccountOperation(
                     accountEntity.getAccountId(),
                     "CREATE",
-                    null, 
+                    null,
                     auditLogService.toJson(createdAccountDTO),
                     accountAddRequest.getOperContext().getUserId()
             );
-            return accountEntity.getAccountId();
-        } catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_KEY", "Customer existing");
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException("DATA_INTEGRITY", ExceptionFormatter.format(e));
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("UNKNOWN_ERROR", "Unknown Error: "+e);
+        }catch (DuplicateKeyException e) {
+            throw new BusinessException("DUPLICATE_KEY", "Account existing");
         }
 
+        return accountEntity.getAccountId();
     }
 
     @Override
@@ -104,15 +96,8 @@ public class AccountMaintServiceImpl implements AccountMaintService {
             accountRedisService.delete(accountEntity.getAccountId());
             return updatedAccountDTO;
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_KEY", "Customer existing");
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException("DATA_INTEGRITY", e.toString());
-        }catch (BusinessException e) {
-            throw e;
-        }catch (Exception e) {
-            throw new BusinessException("UNKNOWN_ERROR", e.toString());
+            throw new BusinessException("fDUPLICATE_KEY", "Customer existing");
         }
-
     }
 
     @Override
@@ -135,13 +120,7 @@ public class AccountMaintServiceImpl implements AccountMaintService {
             );
             return(result);
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("DUP_KEY", "Account existing");
-        } catch (DataIntegrityViolationException e) {
-            throw new BusinessException("DATA_INTEGRITY", e.toString());
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("UNKNOWN_ERROR", e.toString());
+            throw new BusinessException("DUPLICATE_KEY", "Account existing");
         }
     }
 

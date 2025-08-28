@@ -24,7 +24,7 @@ public class RedissionLock {
             if (leaseTimeMillis > 0) {
                 locked = lock.tryLock(leaseTimeMillis, TimeUnit.MILLISECONDS);
                 if (!locked) {
-                    throw new BusinessException("DUP_TXN_LOCK","Transaction is processing");
+                    throw new BusinessException("SYSTEM_BUSY", "System busy, try again later");
                 }
             } else {
                 lock.lock();  //启用看门狗模式，阻塞式等待

@@ -11,6 +11,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.concurrent.UncheckedExecutionException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -92,7 +93,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response missingServletRequestParameterExceptionHandler(MissingServletRequestParameterException ex) {
-    log.warn("[missingServletRequestParameterExceptionHandler]", ex);
+    log.warn("[missingServletRequestParameterExceptionHandler] {}", ex);
     return (new Response("BAD_REQUEST", String.format("Missing request parameter: %s", ex.getParameterName())));
 
 }
@@ -105,7 +106,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException ex) {
-        log.warn("[methodArgumentTypeMismatchExceptionHandler]", ex);
+        log.warn("[methodArgumentTypeMismatchExceptionHandler] {}", ex);
         return(new Response("BAD_REQUEST", String.format("Method parameter error: %s", ex.getMessage())));
     }
 
@@ -115,7 +116,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response methodArgumentNotValidExceptionExceptionHandler(MethodArgumentNotValidException ex) {
-        log.warn("[methodArgumentNotValidExceptionExceptionHandler]", ex);
+        log.warn("[methodArgumentNotValidExceptionExceptionHandler] {}", ex);
         // 获取 errorMessage
         String errorMessage = null;
         FieldError fieldError = ex.getBindingResult().getFieldError();
@@ -141,7 +142,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response bindExceptionHandler(BindException ex) {
-        log.warn("[handleBindException]", ex);
+        log.warn("[handleBindException] {}", ex);
         FieldError fieldError = ex.getFieldError();
         assert fieldError != null; // 断言，避免告警
         return (new Response("BAD_REQUEST", String.format("Request parameter incorrect:%s", fieldError.getDefaultMessage())));
@@ -155,7 +156,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response methodArgumentTypeInvalidFormatExceptionHandler(HttpMessageNotReadableException ex) {
-        log.warn("[methodArgumentTypeInvalidFormatExceptionHandler]", ex);
+        log.warn("[methodArgumentTypeInvalidFormatExceptionHandler] {}", ex);
         if (ex.getCause() instanceof JsonMappingException) {
             return (new Response("BAD_REQUEST", "JSON mapping error: " + ex.getCause().getMessage()));
         }
@@ -177,7 +178,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response constraintViolationExceptionHandler(ConstraintViolationException ex) {
-        log.warn("[constraintViolationExceptionHandler]", ex);
+        log.warn("[constraintViolationExceptionHandler] {}", ex);
         ConstraintViolation<?> constraintViolation = ex.getConstraintViolations().iterator().next();
         return (new Response("BAD_REQUEST", String.format("request parameter incorrect:%s", constraintViolation.getMessage())));
     }
@@ -188,7 +189,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response validationException(ValidationException ex) {
-        log.warn("[constraintViolationExceptionHandler]", ex);
+        log.warn("[constraintViolationExceptionHandler] {}", ex);
         // 无法拼接明细的错误信息，因为 Dubbo Consumer 抛出 ValidationException 异常时，是直接的字符串信息，且人类不可读
         return (new Response("BAD_REQUEST"));
     }
@@ -203,7 +204,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Response noHandlerFoundExceptionHandler(NoHandlerFoundException ex) {
-        log.warn("[noHandlerFoundExceptionHandler]", ex);
+        log.warn("[noHandlerFoundExceptionHandler] {}", ex);
         return (new Response("NOT_FOUND", String.format("No Handler :%s", ex.getRequestURL())));
     }
 
@@ -213,7 +214,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     private Response noResourceFoundExceptionHandler(HttpServletRequest req, NoResourceFoundException ex) {
-        log.warn("[noResourceFoundExceptionHandler]", ex);
+        log.warn("[noResourceFoundExceptionHandler] {}", ex);
         return (new Response("NOT_FOUND", String.format("No static resource: %s", ex.getResourcePath())));
     }
 
@@ -225,7 +226,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public Response httpRequestMethodNotSupportedExceptionHandler(HttpRequestMethodNotSupportedException ex) {
-        log.warn("[httpRequestMethodNotSupportedExceptionHandler]", ex);
+        log.warn("[httpRequestMethodNotSupportedExceptionHandler] {}", ex);
         return (new Response("METHOD_NOT_ALLOWED", String.format("Request method incorrect: %s", ex.getMessage())));
     }
 
@@ -237,7 +238,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response httpMediaTypeNotSupportedExceptionHandler(HttpMediaTypeNotSupportedException ex) {
-        log.warn("[httpMediaTypeNotSupportedExceptionHandler]", ex);
+        log.warn("[httpMediaTypeNotSupportedExceptionHandler] {}", ex);
         return (new Response("BAD_REQUEST", String.format("Request type incorrect: %s", ex.getMessage())));
     }
 
@@ -260,17 +261,29 @@ public class GlobalExceptionHandler {
      * 例如说，缓存加载报错，可见 <a href="https://t.zsxq.com/UszdH">https://t.zsxq.com/UszdH</a>
      */
     @ExceptionHandler(value = UncheckedExecutionException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response uncheckedExecutionExceptionHandler(HttpServletRequest req, UncheckedExecutionException ex) {
+        log.error("[uncheckedExecutionExceptionHandler]", ex);
         return allExceptionHandler(req, ex.getCause());
     }
 
     @ExceptionHandler(BusinessException.class)  //告诉 Spring “当系统抛出BusinessException 异常时，由这个方法处理
     @ResponseBody //序列化方法返回值为 JSON/XML 响应体
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Response handleBusinessException(BusinessException e) {
-        log.warn("Business Exception：{}", e); // 警告级别，无需堆栈
-        return (new Response(e.getCode(), e.getMessage()));
+    public Response businessExceptionHandler(BusinessException ex) {
+        log.warn("[businessExceptionHandler] {}", ex); // 警告级别，无需堆栈
+        return (new Response(ex.getCode(), ex.getMessage()));
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)  //告诉 Spring “当系统抛出BusinessException 异常时，由这个方法处理
+    @ResponseBody //序列化方法返回值为 JSON/XML 响应体
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Response businessExceptionHandler(DataIntegrityViolationException ex) {
+        log.error("[businessExceptionHandler]", ex);
+        return (new Response("DATA_INTEGRITY_VIOLATION", ex.getRootCause().getMessage()));
+    }
+
 
     /**
      * 处理系统异常，兜底处理所有的一切

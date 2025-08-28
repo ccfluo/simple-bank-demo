@@ -32,6 +32,7 @@ This is the demo banking backend application, built using Spring Boot. It provid
 
 ### Wealth Product Purchase:
 - Purchase wealth product: send SMS/Email notification for transfer
+- View wealth product on sale
 
 ## Technologies Used
 - **Spring Boot**: Framework for building the backend application.
@@ -67,7 +68,7 @@ The application will start on `http://localhost:8886`.
 ### Bank Account Management
 - **GET /accounts/{accountId}**: Retrieve details of a specific bank account by ID.
 - **GET /accounts/all**: Retrieve a list of all bank accounts.
-- **GET /account/bycustomer?id={customerId}**: Retrieve all bank accounts for a specific customer.
+- **GET /account/bycustomer?id={customerId}**: Retrieve all bank accounts for a given customer.
 - **POST /accounts/debit**: Perform a debit operation on an account.
 - **POST /accounts/credit**: Perform a credit operation on an account.
 
@@ -79,6 +80,8 @@ The application will start on `http://localhost:8886`.
 
 ### Wealth Management
 - **POST /product/purchase**: Purchase a wealth product.
+- **GET /product/on-sale**: List all wealth products on Sale.
+- **GET /product/purchase/history/{customerId}**: Retrieve all purchase history for a given customer.
 
 ### Exception Handling
 The application uses global exception handling to handle specific scenarios

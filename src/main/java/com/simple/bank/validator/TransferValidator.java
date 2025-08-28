@@ -46,8 +46,8 @@ public class TransferValidator {
         }
 
         // 3. verify account balance
-        if (fromAccount.getBalance().compareTo(request.getTransferAmount()) < 0) {
-            throw new BusinessException("INSUFF_BALN", "Insufficient balance for transfer");
+        if (request.getTransferAmount().compareTo(fromAccount.getBalance()) > 0) {
+            throw new BusinessException("INSUFF_BALN", "Insufficient Balance");
         }
 
         // 4. verify if duplicate transaction

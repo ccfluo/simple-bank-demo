@@ -33,13 +33,12 @@ public class SentinelGlobalHandler implements BlockExceptionHandler {
             BlockException ex
     ) throws IOException {
         String code = "FLOW_LIMIT";
-        String msg = "请求被限制";
+        String msg = "Request was blocked";
         int status = HttpStatus.TOO_MANY_REQUESTS.value(); // 默认429
 
-        // 根据异常类型细化处理
         if (ex instanceof FlowException) {
             code = "FLOW_LIMIT";
-            msg = "请求频率过高，请稍后重试";
+            msg = "Flow limited, please try again later";
         } else if (ex instanceof DegradeException) {
             code = "TEMP_DEGRADE";
             msg = "service temporarily degraded";
@@ -53,7 +52,7 @@ public class SentinelGlobalHandler implements BlockExceptionHandler {
             status = HttpStatus.SERVICE_UNAVAILABLE.value(); // 503 ==> Phoebe to be checked
         } else if (ex instanceof AuthorityException) {
             code = "AUTH_DENY";
-            msg = "权限校验未通过";
+            msg = "Access denied - failed authorization";
             status = HttpStatus.UNAUTHORIZED.value(); // 401
         }
 

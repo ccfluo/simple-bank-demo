@@ -32,7 +32,7 @@ public class AccountUpdateValidator {
 
         //4. check if balance < 0
         if (accountDTO.getBalance() != null && accountDTO.getBalance().compareTo(BigDecimal.ZERO)< 0) {
-            throw new BusinessException("INVALID_FIELD", "Insufficient balance");
+            throw new BusinessException("INSUFF_BALN", "Insufficient Balance");
         }
 
         if (accountDTO.getOverDraft() != null && accountDTO.getOverDraft().compareTo(BigDecimal.ZERO)< 0) {
