@@ -16,7 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableConfigurationProperties(WebProperties.class)
 public class SimpleBankWebAutoConfiguration implements WebMvcConfigurer {
 
-    @Autowired   //phoebe @Resource
+    @Autowired
     private WebProperties webProperties;
 
 //    @Value("${spring.application.name}")

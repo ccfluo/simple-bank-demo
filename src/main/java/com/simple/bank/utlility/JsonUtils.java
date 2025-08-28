@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.core.type.TypeReference;
 import cn.hutool.json.JSONUtil;
 import com.simple.bank.exception.BusinessException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 public class JsonUtils {
@@ -43,6 +45,19 @@ public class JsonUtils {
             log.error("json parse err,json:{}", text, e);
 //            throw new RuntimeException(e);
             throw new BusinessException("JSON_PARSE_ERROR", "text: "+e);
+        }
+    }
+
+    public static <T> List<T> parseArray(String text, Class<T> clazz) {
+        if (StrUtil.isEmpty(text)) {
+            return null;
+        }
+        try {
+            // 使用TypeReference指定List的泛型类型
+            return objectMapper.readValue(text, new TypeReference<List<T>>() {});
+        } catch (IOException e) {
+            log.error("json array parse err,json:{}", text, e);
+            throw new BusinessException("JSON_ARRAY_PARSE_ERROR", "array text: " + e.getMessage());
         }
     }
 

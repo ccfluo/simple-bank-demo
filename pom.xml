@@ -70,7 +70,7 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- Spring Cloud Alibaba Sentinel phoebe 核心依赖 -->
+    <!-- Spring Cloud Alibaba Sentinel 核心依赖 -->
     <dependency>
        <groupId>com.alibaba.cloud</groupId>
        <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
@@ -129,6 +129,14 @@
           <artifactId>spring-boot-starter-data-redis</artifactId>
           <version>3.4.5</version>
       </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.redisson/redisson-spring-boot-starter -->
+      <dependency>
+          <groupId>org.redisson</groupId>
+          <artifactId>redisson-spring-boot-starter</artifactId>
+          <version>3.45.0</version>
+      </dependency>
+
 
       <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-json -->
       <dependency>

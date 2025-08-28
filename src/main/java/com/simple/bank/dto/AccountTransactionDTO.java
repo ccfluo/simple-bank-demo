@@ -20,4 +20,5 @@ public class AccountTransactionDTO {
     private BigDecimal accountBalance;
     private String description;
     private LocalDateTime createdAt;
+    private String transactionTraceId;
 }

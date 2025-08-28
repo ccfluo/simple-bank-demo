@@ -4,6 +4,7 @@ import com.simple.bank.entity.AccountEntity;
 import com.simple.bank.mapper.sqlProvider.AccountSqlProvider;
 import org.apache.ibatis.annotations.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface AccountMapper {
@@ -11,13 +12,16 @@ public interface AccountMapper {
     int existsById(Long accountId);
 
     @Select("SELECT * FROM account WHERE account_id =#{accountId}")
-    AccountEntity selectAccountById(Long accountId);
+    AccountEntity getAccountById(Long accountId);
+
+    @Select("SELECT * FROM account WHERE account_id =#{accountId}  FOR UPDATE")
+    AccountEntity getAccountByIdForUpdate(Long accountId);
 
     @Select("SELECT * FROM account")
-    List<AccountEntity> selectAllAccounts();
+    List<AccountEntity> getAllAccounts();
 
     @Select("SELECT * FROM account WHERE customer_id = #{customerId}")
-    List<AccountEntity> selectAccountByCustomerId(Long customerID);
+    List<AccountEntity> getAccountByCustomerId(Long customerID);
 
     @Insert("INSERT INTO account (" +
             "type, product_code, balance, account_status, over_draft, interest_rate, " +
@@ -32,4 +36,8 @@ public interface AccountMapper {
 
     @Delete("DELETE FROM account WHERE account_id =#{accountId}")
     int deleteAccount(Long customerId);
+
+    @Update("UPDATE bank_account SET balance = #{newBalance}, updated_at = NOW() WHERE account_id = #{accountId}")
+    int updateAccountBalance(Long accountId, BigDecimal newBalance);
+
 }

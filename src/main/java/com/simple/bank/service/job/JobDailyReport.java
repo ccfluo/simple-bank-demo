@@ -1,7 +1,7 @@
 package com.simple.bank.service.job;
 
 import com.simple.bank.dto.AccountTransactionDTO;
-import com.simple.bank.service.TransactionService;
+import com.simple.bank.service.biz.TransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;

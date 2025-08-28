@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AccountTransaction {
     private Long transactionId;
+    private String transactionTraceId;
     private LocalDateTime transactionDate;
     private BigDecimal transactionAmount;
     private String transactionType; // 'CREDIT' /'DEBIT'

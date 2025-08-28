@@ -8,16 +8,17 @@ import lombok.Setter;
 
 import java.util.List;
 
-@JsonPropertyOrder({"response", "accountDTOList"})
-@Setter @Getter
+@JsonPropertyOrder({"response", "accounts"})
+@Setter
+@Getter
 public class ListOfAccountResponse {
     private Response response;
-    private List<AccountDTO> accountDTOList;
+    private List<AccountDTO> accounts;
 
     public ListOfAccountResponse(List<AccountDTO> accountDTOList){
 //        this.response = ResultSetter.success().getResponse();
         this.response = new Response();
-        this.accountDTOList = accountDTOList;
+        this.accounts = accountDTOList;
     }
 
 }

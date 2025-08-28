@@ -3,7 +3,7 @@ package com.simple.bank.validator;
 import com.simple.bank.api.request.CustomerAddRequest;
 import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.OtherService;
+import com.simple.bank.service.biz.OtherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,17 +29,17 @@ public class CustomerAddValidator {
         }
         if (customerDTO.getName() == null || customerDTO.getName().trim().isEmpty()){
             throw new BusinessException("INVALID_FIELD",
-                    "Customer name is empty");
-        };
+                    "Customer name must not be empty");
+        }
 
        if (customerDTO.getEmail() == null || customerDTO.getEmail().trim().isEmpty()){
            throw new BusinessException("INVALID_FIELD",
-                   "Customer email is empty");
+                   "Customer email must not be empty");
        }
 
         if (customerDTO.getMobile() == null || customerDTO.getMobile().trim().isEmpty()){
             throw new BusinessException("INVALID_FIELD",
-                    "Customer mobile is empty");
+                    "Customer mobile must not be empty");
         }
     }
 }

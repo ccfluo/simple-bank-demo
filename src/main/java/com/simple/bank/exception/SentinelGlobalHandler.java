@@ -32,7 +32,6 @@ public class SentinelGlobalHandler implements BlockExceptionHandler {
             HttpServletResponse response,
             BlockException ex
     ) throws IOException {
-        System.out.println("Phoebe Sentinel 限流处理器被调用！");
         String code = "FLOW_LIMIT";
         String msg = "请求被限制";
         int status = HttpStatus.TOO_MANY_REQUESTS.value(); // 默认429

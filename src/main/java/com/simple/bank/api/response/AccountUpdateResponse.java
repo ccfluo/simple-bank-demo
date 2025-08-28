@@ -6,15 +6,15 @@ import com.simple.bank.dto.Response;
 import lombok.Getter;
 import lombok.Setter;
 
-@JsonPropertyOrder({"response", "accountDTO"})
+@JsonPropertyOrder({"response", "account"})
 @Setter @Getter
 public class AccountUpdateResponse {
     private Response response;
-    private AccountDTO accountDTO;
+    private AccountDTO account;
 
     public AccountUpdateResponse(AccountDTO accountDTO, String message){
         this.response = new Response(message);
-        this.accountDTO = accountDTO;
+        this.account = accountDTO;
     }
 
 }

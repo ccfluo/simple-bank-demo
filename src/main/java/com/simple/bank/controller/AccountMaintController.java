@@ -6,19 +6,12 @@ import com.simple.bank.api.response.AccountAddResponse;
 import com.simple.bank.api.response.AccountDeleteResponse;
 import com.simple.bank.api.response.AccountUpdateResponse;
 import com.simple.bank.dto.AccountDTO;
-import com.simple.bank.service.AccountMaintService;
+import com.simple.bank.service.biz.AccountMaintService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * @ClassName AccountMaintController
- * @Description:
- * @Author
- * @Date 2025/8/10
- * @Version V1.0
- **/
 @Slf4j
 @RestController
 @RequestMapping("/account")

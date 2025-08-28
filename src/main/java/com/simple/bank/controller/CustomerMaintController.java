@@ -7,19 +7,12 @@ import com.simple.bank.api.response.CustomerAddResponse;
 import com.simple.bank.api.response.CustomerDeleteResponse;
 import com.simple.bank.api.response.CustomerUpdateResponse;
 import com.simple.bank.dto.CustomerDTO;
-import com.simple.bank.service.CustomerMaintService;
+import com.simple.bank.service.biz.CustomerMaintService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * @ClassName CustomerMaintController
- * @Description:
- * @Author
- * @Date 2025/8/10
- * @Version V1.0
- **/
 @Slf4j
 @RestController
 @RequestMapping("/customer")

@@ -3,9 +3,11 @@ package com.simple.bank.validator;
 import com.simple.bank.api.request.AccountUpdateRequest;
 import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.OtherService;
+import com.simple.bank.service.biz.OtherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 @Component // 注入Spring容器，便于在Service中调用
 public class AccountUpdateValidator {
@@ -21,10 +23,26 @@ public class AccountUpdateValidator {
         // 2. check if account exists or not
         if (!otherService.isAccountExists(accountId)) {
             throw new BusinessException("NOT_FOUND", "Account to be updated not existing");
-        };
+        }
+
+        AccountDTO accountDTO = accountUpdateRequest.getAccount();
 
         // 3. verify if any other field input besides customer id
-        validateOtherFields(accountUpdateRequest.getAccount());
+        validateOtherFields(accountDTO);
+
+        //4. check if balance < 0
+        if (accountDTO.getBalance() != null && accountDTO.getBalance().compareTo(BigDecimal.ZERO)< 0) {
+            throw new BusinessException("INVALID_FIELD", "Insufficient balance");
+        }
+
+        if (accountDTO.getOverDraft() != null && accountDTO.getOverDraft().compareTo(BigDecimal.ZERO)< 0) {
+            throw new BusinessException("INVALID_FIELD", "Overdraft amount must be >= 0");
+        }
+
+        if (accountDTO.getInterestRate() != null && accountDTO.getInterestRate().compareTo(BigDecimal.ZERO)< 0) {
+            throw new BusinessException("INVALID_FIELD", "Interest Rate must be >= 0");
+        }
+
     }
 
     /* customerId非空且有效 */

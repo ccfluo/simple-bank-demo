@@ -4,19 +4,15 @@ import com.simple.bank.api.request.AccountAddRequest;
 import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.enums.AccountStatus;
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.OtherService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component // 注入Spring容器，便于在Service中调用
+@Component
 public class AccountAddValidator {
-
-    @Autowired
-    private OtherService otherService;
 
     // 缓存枚举的所有有效名称（仅初始化一次，提高性能）
     private static final Set<String> VALID_STATUS_NAMES;
@@ -47,17 +43,23 @@ public class AccountAddValidator {
         }
         if (accountDTO.getType() == null || accountDTO.getType().trim().isEmpty()){
             throw new BusinessException("INVALID_FIELD",
-                    "Type is empty");
-        };
+                    "Type must not be empty");
+        }
 
         if (accountDTO.getProductCode() == null || accountDTO.getProductCode().trim().isEmpty()){
             throw new BusinessException("INVALID_FIELD",
-                    "Account Product Code is empty");
+                    "Account Product Code must not be empty");
         }
         if (accountDTO.getBalance() == null){
             throw new BusinessException("INVALID_FIELD",
-                    "Account Balance is empty");
+                    "Account Balance must not be empty");
         }
+
+        if (accountDTO.getBalance().compareTo(BigDecimal.ZERO) < 0){
+            throw new BusinessException("INVALID_FIELD",
+                    "Insufficient balance");
+        }
+
 //        if (accountDTO.getAccountStatus() == null || accountDTO.getAccountStatus().trim().isEmpty()){
 //            throw new BusinessException("INVALID_FIELD",
 //                    "Account Status is empty");
@@ -65,16 +67,26 @@ public class AccountAddValidator {
 
         if (accountDTO.getOverDraft() == null){
             throw new BusinessException("INVALID_FIELD",
-                    "Account overdraft is empty");
+                    "Account overdraft must not be empty");
         }
         if (accountDTO.getInterestRate() == null){
             throw new BusinessException("INVALID_FIELD",
-                    "Account interest rate is empty");
+                    "Account interest rate must not be empty");
         }
+
+        if (accountDTO.getOverDraft().compareTo(BigDecimal.ZERO)< 0) {
+            throw new BusinessException("INVALID_FIELD", "Overdraft amount must be >= 0");
+        }
+
+        if (accountDTO.getInterestRate().compareTo(BigDecimal.ZERO)< 0) {
+            throw new BusinessException("INVALID_FIELD", "Interest Rate must be >= 0");
+        }
+
         if (accountDTO.getCustomerId() == null){
             throw new BusinessException("INVALID_FIELD",
-                    "Account customer id is empty");
+                    "Account's customer id must not be empty");
         }
+
     }
 
     private void validateAccountStatus(String accountStatus) {
@@ -86,7 +98,7 @@ public class AccountAddValidator {
         if (!VALID_STATUS_NAMES.contains(accountStatus)) {
             throw new BusinessException("INVALID_FIELD",
                     "Invalid Account Status");
-        };
+        }
 
     }
 }

@@ -1,7 +1,7 @@
 package com.simple.bank.validator;
 
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.OtherService;
+import com.simple.bank.service.biz.OtherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,7 @@ public class AccountDeleteValidator {
     private void validateAccountId(Long accountId) {
         if (accountId == null || accountId <= 0) {
             throw new BusinessException("INVALID_FIELD",
-                    "Customer ID must not be null or negative");
+                    "Account Id must not be empty or <=0");
         }
     }
 

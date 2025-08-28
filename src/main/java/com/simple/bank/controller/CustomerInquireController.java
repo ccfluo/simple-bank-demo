@@ -4,7 +4,7 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.simple.bank.api.response.CustomerInquireResponse;
 import com.simple.bank.api.response.ListOfCustomerResponse;
 import com.simple.bank.dto.CustomerDTO;
-import com.simple.bank.service.CustomerInquireService;
+import com.simple.bank.service.biz.CustomerInquireService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * @ClassName CustomerController
- * @Description:
- * @Author
- * @Date 2025/8/10
- * @Version V1.0
- **/
 @Slf4j
 @RestController
 @RequestMapping("/customer")

@@ -14,13 +14,16 @@ public interface CustomerMapper {
 //    @Results({
 //            @Result(column = "id", property = "customerid") // table id → entity customerid
 //    })
-    CustomerEntity selectCustomerById(Long customerId);
+    CustomerEntity getCustomerById(Long customerId);
+
+    @Select("SELECT * FROM customer WHERE customer_id =#{customerId} FOR UPDATE")
+    CustomerEntity getCustomerByIdForUpdate(Long customerId);
 
     @Select("SELECT * FROM customer")
 //    @Results({
 //            @Result(column = "id", property = "customerid") // table id → entity customerid
 //    })
-    List<CustomerEntity> selectAllCustomers();
+    List<CustomerEntity> getAllCustomers();
 
     @Insert("INSERT INTO customer (" +
             "email, name, mobile)" +

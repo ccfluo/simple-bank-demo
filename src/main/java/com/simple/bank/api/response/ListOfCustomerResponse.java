@@ -8,16 +8,16 @@ import lombok.Setter;
 
 import java.util.List;
 
-@JsonPropertyOrder({"response", "customerDTOList"})
+@JsonPropertyOrder({"response", "customers"})
 @Setter @Getter
 public class ListOfCustomerResponse {
     private Response response;
-    private List<CustomerDTO> customerDTOList;
+    private List<CustomerDTO> customers;
 
     public ListOfCustomerResponse(List<CustomerDTO> customerDTOList){
 //        this.response = ResultSetter.success().getResponse();
         this.response = new Response();
-        this.customerDTOList = customerDTOList;
+        this.customers = customerDTOList;
     }
 
 }

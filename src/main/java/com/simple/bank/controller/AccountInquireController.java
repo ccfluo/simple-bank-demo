@@ -1,10 +1,9 @@
 package com.simple.bank.controller;
 
-import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.simple.bank.api.response.AccountInquireResponse;
 import com.simple.bank.api.response.ListOfAccountResponse;
 import com.simple.bank.dto.AccountDTO;
-import com.simple.bank.service.AccountInquireService;
+import com.simple.bank.service.biz.AccountInquireService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * @ClassName AccountController
- * @Description:
- * @Author
- * @Date 2025/8/10
- * @Version V1.0
- **/
 @Slf4j
 @RestController
 @RequestMapping("/account")
@@ -31,7 +23,6 @@ public class AccountInquireController {
         AccountDTO accountDTO = service.getAccountById(accountId);
         return ResponseEntity.ok(new AccountInquireResponse(accountDTO));
     }
-
 
     //http://localhost:8085/account/bycustomer?id=123
     @GetMapping("/bycustomer")
@@ -46,7 +37,7 @@ public class AccountInquireController {
     }
 
 //    public ResponseEntity<List<CustomerDTO>> getAll() throws CustomerNotFound{
-    @GetMapping("/all")
+    @GetMapping("/all") // TODO:pagination to be handled
     public ResponseEntity<ListOfAccountResponse> getAll(){
         List<AccountDTO> accountDTOList = service.getAllAccounts();
         return ResponseEntity.ok(new ListOfAccountResponse(accountDTOList));

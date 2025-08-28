@@ -3,7 +3,7 @@ package com.simple.bank.validator;
 import com.simple.bank.api.request.CustomerUpdateRequest;
 import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.OtherService;
+import com.simple.bank.service.biz.OtherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ public class CustomerUpdateValidator {
         // 2. check if customer exists or not
         if (!otherService.isCustomerExists(customerId)) {
             throw new BusinessException("NOT_FOUND","Customer to be updated not existing");
-        };
+        }
 
         // 3. verify if any other field input besides customer id
         validateOtherFields(customerUpdateRequest.getCustomer());
@@ -31,7 +31,7 @@ public class CustomerUpdateValidator {
     private void validateCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {
             throw new BusinessException("INVALID_FIELD",
-                    "Customer ID must not be null or negative");
+                    "Customer ID must not be empty or <=0");
         }
 
     }

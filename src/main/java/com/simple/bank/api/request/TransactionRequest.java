@@ -10,4 +10,5 @@ public class TransactionRequest {
     private Long accountId;
     private BigDecimal transactionAmount;
     private String description;
+    private String transactionTraceId;
 }

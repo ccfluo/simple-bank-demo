@@ -7,8 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @JsonPropertyOrder({"response", "transaction"})
-@Setter
-@Getter
+@Setter @Getter
 public class TransactionResponse {
     private Response response;
     private AccountTransactionDTO transaction;
