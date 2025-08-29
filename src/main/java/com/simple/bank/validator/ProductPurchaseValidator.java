@@ -17,14 +17,14 @@ import java.time.LocalDateTime;
 @Component
 public class ProductPurchaseValidator {
 
-    @Autowired
-    private ProductService productService;
+//    @Autowired
+//    private ProductService productService;
     @Autowired
     private ProductPurchaseMapper productPurchaseMapper;
-    @Autowired
-    private AccountInquireService accountService;
+//    @Autowired
+//    private AccountInquireService accountService;
 
-    public void validate(ProductPurchaseRequest request, BigDecimal accountBalance) throws BusinessException {
+    public void validate(ProductPurchaseRequest request, ProductDTO product, BigDecimal accountBalance) throws BusinessException {
         // 1. validate input
         if (request.getProductId() == null) {
             throw new BusinessException("INVALID_FIELD", "Product Id must not be empty");
@@ -40,7 +40,7 @@ public class ProductPurchaseValidator {
         }
 
         // 2. validate product
-        ProductDTO product = productService.getProductById(request.getProductId());
+//        ProductDTO product = productService.getProductById(request.getProductId());
         if (!"ON_SALE".equals(product.getStatus())) {
             throw new BusinessException("PRODUCT_NOT_ON_SALE", "Product is not on sale");
         }
@@ -61,7 +61,7 @@ public class ProductPurchaseValidator {
 
         // 3. validate account
         if (accountBalance.compareTo(request.getPurchaseAmount()) < 0) {
-            throw new BusinessException("INSUFF_BALN", "Insufficient Balance");
+            throw new BusinessException("INSUFFICIENT_BALANCE", "Insufficient Balance");
         }
 
         //4. validate traceid to avoid duplicate trx

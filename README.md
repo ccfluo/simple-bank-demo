@@ -60,23 +60,25 @@ The application will start on `http://localhost:8886`.
 
 ### Customer Management
 - **GET /customer/all**: Retrieve a list of all customers.
-- **GET /customers/{customerId}**: Retrieve details of a specific customer by ID.
-- **POST /customer/create**: Create a new customer.
+- **GET /customer/{customerId}**: Retrieve details of a specific customer by ID.
+- **POST /customer/create**: Open a new customer.
 - **POST /customer/update**: Update an existing customer.
-- **DELETE /customer/{customerId}**: Delete a customer by ID.
+- **DELETE /customer/{customerId}**: Delete a customer.
 
 ### Bank Account Management
-- **GET /accounts/{accountId}**: Retrieve details of a specific bank account by ID.
-- **GET /accounts/all**: Retrieve a list of all bank accounts.
+- **GET /account/{accountId}**: Retrieve details of a specific bank account by ID.
+- **GET /account/all**: Retrieve a list of all bank accounts.
 - **GET /account/bycustomer?id={customerId}**: Retrieve all bank accounts for a given customer.
-- **POST /accounts/debit**: Perform a debit operation on an account.
-- **POST /accounts/credit**: Perform a credit operation on an account.
-
+- **POST /account/create**: Open an account.
+- **POST /account/update**: Update an existing account.
+- **DELETE /customer/{customerId}**: Delete an account.
+- 
 ### Transaction Management
 - **POST /transaction/withdraw**: Withdraw money from a banking account.
 - **POST /transaction/deposit**: Deposit money to a banking account.
-- **GET /transaction/history/{accountId}** Retrieve the transaction history for a specific account.
-- **POST /transaction/transfer** transfer money to other account
+- **GET /transaction/history/customer?id={customerId}**: Retrieve the transaction history for a given customer.
+- **GET /transaction/history/account?id={accountId}**: Retrieve the transaction history for a given account.
+- **POST /transaction/transfer**: Transfer money to other account
 
 ### Wealth Management
 - **POST /product/purchase**: Purchase a wealth product.

@@ -96,7 +96,7 @@ public class AccountMaintServiceImpl implements AccountMaintService {
             accountRedisService.delete(accountEntity.getAccountId());
             return updatedAccountDTO;
         } catch (DuplicateKeyException e) {
-            throw new BusinessException("fDUPLICATE_KEY", "Customer existing");
+            throw new BusinessException("DUPLICATE_KEY", "Customer existing");
         }
     }
 

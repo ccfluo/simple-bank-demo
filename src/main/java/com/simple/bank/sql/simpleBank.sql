@@ -1,6 +1,18 @@
 CREATE DATABASE `simplebank`
--- simplebank.account definition
 
+-- simplebank.customer definition
+CREATE TABLE `customer` (
+  `customer_id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(254) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `mobile` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  PRIMARY KEY (`customer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='customer table';
+
+
+-- simplebank.account definition
 CREATE TABLE `account` (
   `account_id` bigint NOT NULL AUTO_INCREMENT,
   `type` varchar(4) NOT NULL,
@@ -18,7 +30,6 @@ CREATE TABLE `account` (
 ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='bank account table';
 
 -- simplebank.audit_log definition
-
 CREATE TABLE `audit_log` (
   `audit_id` bigint NOT NULL AUTO_INCREMENT,
   `entity_type` varchar(20) NOT NULL,
@@ -33,30 +44,17 @@ CREATE TABLE `audit_log` (
   KEY `idx_entity_type_id` (`entity_type`,`entity_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=190 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='audit log table';
 
--- simplebank.customer definition
-
-CREATE TABLE `customer` (
-  `customer_id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(254) NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `mobile` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  PRIMARY KEY (`customer_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 -- simplebank.product_purchase definition
-
 CREATE TABLE `product_purchase` (
-  `purchase_id` bigint NOT NULL AUTO_INCREMENT COMMENT '购买记录ID',
-  `product_id` bigint NOT NULL COMMENT '产品ID',
-  `customer_id` bigint NOT NULL COMMENT '客户ID',
-  `account_id` bigint NOT NULL COMMENT '支付账户ID',
-  `purchase_amount` decimal(19,2) NOT NULL COMMENT '购买金额',
-  `purchase_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '购买时间',
-  `status` varchar(20) NOT NULL COMMENT '状态（HOLDING, REDEEMED, EXPIRED）',
-  `transaction_trace_id` varchar(100) NOT NULL COMMENT '交易追踪ID',
+  `purchase_id` bigint NOT NULL AUTO_INCREMENT,
+  `product_id` bigint NOT NULL,
+  `customer_id` bigint NOT NULL,
+  `account_id` bigint NOT NULL,
+  `purchase_amount` decimal(19,2) NOT NULL,
+  `purchase_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `transaction_trace_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`purchase_id`),
   UNIQUE KEY `transaction_trace_id` (`transaction_trace_id`),
   KEY `idx_customer_id` (`customer_id`),
@@ -65,10 +63,9 @@ CREATE TABLE `product_purchase` (
   CONSTRAINT `fk_purchase_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`),
   CONSTRAINT `fk_purchase_customer` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`),
   CONSTRAINT `fk_purchase_product` FOREIGN KEY (`product_id`) REFERENCES `wealth_product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='wealth product purchse table';
 
 -- simplebank.transaction_history definition
-
 CREATE TABLE `transaction_history` (
   `transaction_id` bigint NOT NULL AUTO_INCREMENT,
   `transaction_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -85,51 +82,26 @@ CREATE TABLE `transaction_history` (
   KEY `fk_account_transaction_customer` (`customer_id`),
   CONSTRAINT `fk_account_transaction_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`),
   CONSTRAINT `fk_account_transaction_customer` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='account financial transaction table';
 
 
 -- simplebank.transfer_history definition
-
 CREATE TABLE `transfer_history` (
-  `transfer_id` bigint NOT NULL AUTO_INCREMENT COMMENT '转账记录ID（主键）',
-  `transfer_trace_id` varchar(64) NOT NULL COMMENT '全局追踪ID（幂等性标识）',
-  `from_account_id` bigint NOT NULL COMMENT '转出账户ID',
-  `to_account_id` bigint NOT NULL COMMENT '转入账户ID',
-  `transfer_amount` decimal(19,2) NOT NULL COMMENT '转账金额（>0）',
-  `transaction_type` varchar(30) NOT NULL COMMENT '交易类型：TRANSFER',
-  `status` varchar(20) NOT NULL COMMENT '交易状态：SUCCESS(成功)、FAIL(失败)、PROCESSING(处理中)',
-  `remark` varchar(255) DEFAULT NULL COMMENT '转账备注（如附言）',
-  `transfer_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转账时间',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
+  `transfer_id` bigint NOT NULL AUTO_INCREMENT,
+  `transfer_trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `from_account_id` bigint NOT NULL,
+  `to_account_id` bigint NOT NULL,
+  `transfer_amount` decimal(19,2) NOT NULL,
+  `transaction_type` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `transfer_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`transfer_id`),
-  UNIQUE KEY `uk_trace_id` (`transfer_trace_id`) COMMENT '唯一索引：确保同一笔转账不重复处理',
-  KEY `idx_from_account` (`from_account_id`,`transfer_time`) COMMENT '联合索引：按转出账户+时间查询',
-  KEY `idx_to_account` (`to_account_id`,`transfer_time`) COMMENT '联合索引：按转入账户+时间查询',
+  UNIQUE KEY `uk_trace_id` (`transfer_trace_id`),
+  KEY `idx_from_account` (`from_account_id`,`transfer_time`),
+  KEY `idx_to_account` (`to_account_id`,`transfer_time`),
   CONSTRAINT `fk_from_account` FOREIGN KEY (`from_account_id`) REFERENCES `account` (`account_id`),
   CONSTRAINT `fk_to_account` FOREIGN KEY (`to_account_id`) REFERENCES `account` (`account_id`),
   CONSTRAINT `ck_amount_positive` CHECK ((`transfer_amount` > 0))
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='账户转账记录表';
-
-
--- simplebank.transfer_history definition
-
-CREATE TABLE `transfer_history` (
-  `transfer_id` bigint NOT NULL AUTO_INCREMENT COMMENT '转账记录ID（主键）',
-  `transfer_trace_id` varchar(64) NOT NULL COMMENT '全局追踪ID（幂等性标识）',
-  `from_account_id` bigint NOT NULL COMMENT '转出账户ID',
-  `to_account_id` bigint NOT NULL COMMENT '转入账户ID',
-  `transfer_amount` decimal(19,2) NOT NULL COMMENT '转账金额（>0）',
-  `transaction_type` varchar(30) NOT NULL COMMENT '交易类型：TRANSFER',
-  `status` varchar(20) NOT NULL COMMENT '交易状态：SUCCESS(成功)、FAIL(失败)、PROCESSING(处理中)',
-  `remark` varchar(255) DEFAULT NULL COMMENT '转账备注（如附言）',
-  `transfer_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '转账时间',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
-  PRIMARY KEY (`transfer_id`),
-  UNIQUE KEY `uk_trace_id` (`transfer_trace_id`) COMMENT '唯一索引：确保同一笔转账不重复处理',
-  KEY `idx_from_account` (`from_account_id`,`transfer_time`) COMMENT '联合索引：按转出账户+时间查询',
-  KEY `idx_to_account` (`to_account_id`,`transfer_time`) COMMENT '联合索引：按转入账户+时间查询',
-  CONSTRAINT `fk_from_account` FOREIGN KEY (`from_account_id`) REFERENCES `account` (`account_id`),
-  CONSTRAINT `fk_to_account` FOREIGN KEY (`to_account_id`) REFERENCES `account` (`account_id`),
-  CONSTRAINT `ck_amount_positive` CHECK ((`transfer_amount` > 0))
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='账户转账记录表';
-
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='transfer history table';

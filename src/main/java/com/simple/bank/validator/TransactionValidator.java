@@ -17,8 +17,8 @@ public class TransactionValidator {
     @Autowired
     private OtherService otherService;
 
-    @Autowired
-    private TransactionMapper transactionMapper;
+//    @Autowired
+//    private TransactionMapper transactionMapper;
 
     public void ValidateCreditAccountBalance(TransactionRequest transactionRequest) {
 
@@ -56,7 +56,7 @@ public class TransactionValidator {
         }
 
         if (transactionRequest.getTransactionAmount().compareTo(originalBalance) > 0) {
-            throw new BusinessException("INSUFF_BALN", "Insufficient Balance");
+            throw new BusinessException("INSUFFICIENT_BALANCE", "Insufficient Balance");
         }
 
         if (transactionRequest.getDescription() == null || transactionRequest.getDescription().trim().isEmpty()) {

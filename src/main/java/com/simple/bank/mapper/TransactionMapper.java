@@ -10,15 +10,20 @@ import java.util.List;
 public interface TransactionMapper {
 
     @Insert("INSERT INTO transaction_history (" +
-            "transaction_amount, transaction_type, account_id, account_balance, description, transaction_trace_id)" +
+            "transaction_amount, transaction_type, customer_id, account_id, " +
+            "account_balance, description, transaction_trace_id)" +
             " VALUES (" +
-            "#{transactionAmount}, #{transactionType}, #{accountId}, #{accountBalance}, #{description}, #{transactionTraceId}" +
+            "#{transactionAmount}, #{transactionType}, #{customerId}, #{accountId}, " +
+            "#{accountBalance}, #{description}, #{transactionTraceId}" +
             ")")
     @Options(useGeneratedKeys = true, keyProperty = "transactionId", keyColumn = "transaction_id")
     int insertTransaction(AccountTransaction transaction);
 
     @Select("SELECT * FROM transaction_history WHERE account_id = #{accountId} ORDER BY transaction_date DESC")
     List<AccountTransaction> getTransactionsByAccountId(Long accountId);
+
+    @Select("SELECT * FROM transaction_history WHERE customer_id = #{customerId} ORDER BY transaction_date DESC")
+    List<AccountTransaction> getTransactionsByCustomerId(Long customerId);
 
     @Select("SELECT * FROM transaction_history WHERE transaction_trace_id = #{transactionTraceId}")
     AccountTransaction getTransactionsByTraceId(String transactionTraceId);

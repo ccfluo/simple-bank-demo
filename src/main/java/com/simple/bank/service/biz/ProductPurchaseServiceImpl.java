@@ -3,10 +3,7 @@ package com.simple.bank.service.biz;
 import com.simple.bank.api.request.ProductPurchaseRequest;
 import com.simple.bank.api.request.TransactionRequest;
 import com.simple.bank.converter.ProductConverter;
-import com.simple.bank.dto.AccountDTO;
-import com.simple.bank.dto.AccountTransactionDTO;
-import com.simple.bank.dto.CustomerDTO;
-import com.simple.bank.dto.ProductPurchaseDTO;
+import com.simple.bank.dto.*;
 import com.simple.bank.entity.ProductPurchaseEntity;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.ProductMapper;
@@ -53,7 +50,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
     public ProductPurchaseDTO purchase(ProductPurchaseRequest request) throws BusinessException {
         // lock until purchase transaction completed
         // -- only 1 thread can update Product remaining amount at the same time
-        return redissionLock.lock("purchase_product_lock:" + String.valueOf(request.getProductId()), 500L,
+        return redissionLock.lock("purchase_product_lock:" + request.getProductId(), 500L,
                 () -> doPurchase(request));
     }
 
@@ -61,10 +58,13 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         // 1. inquire account info (customerId, balance etc)
         AccountDTO accountDTO = accountInquireService.getAccountById(request.getAccountId());
 
-        // 2. validate request
-        purchaseValidator.validate(request, accountDTO.getBalance());
+        // 2. inquire product info
+        ProductDTO product = productService.getProductById(request.getProductId());
 
-        // 3. deduct amount from account
+        // 3. validate request
+        purchaseValidator.validate(request, product, accountDTO.getBalance());
+
+        // 4. deduct amount from account - select for update mode
         AccountTransactionDTO accountTransactionDTO = debitAccountBalance(request);
 
         // 4. deduct product remaining amount - sql will check if still have enough remaining amount again.
@@ -77,7 +77,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         }
 
         // 5. log purchase record
-        ProductPurchaseEntity purchaseEntity = createPurchaseRecord(request, accountDTO.getCustomerId());
+        ProductPurchaseEntity purchaseEntity = createPurchaseRecord(request, product, accountDTO.getCustomerId());
         try {
             purchaseMapper.insertPurchase(purchaseEntity);
         } catch (DuplicateKeyException e) {
@@ -94,6 +94,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
     // deduct purchase amount from account
     // call transactionService.debitAccountBalance to make sure transaction history/audit log etc to be handled.
     //      debitAccountBalance : select for update to make sure balance not updated by others
+    //                            validate balance again after select for update in case other trx updated baln
     private AccountTransactionDTO  debitAccountBalance(ProductPurchaseRequest request) throws BusinessException {
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setOperContext(request.getOperContext());
@@ -107,7 +108,9 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
     }
 
     // create purchase record
-    private ProductPurchaseEntity createPurchaseRecord(ProductPurchaseRequest request, Long customerId) {
+    private ProductPurchaseEntity createPurchaseRecord(ProductPurchaseRequest request,
+                                                       ProductDTO product,
+                                                       Long customerId) {
         ProductPurchaseEntity purchase = new ProductPurchaseEntity();
         purchase.setProductId(request.getProductId());
         purchase.setCustomerId(customerId);
@@ -116,6 +119,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         purchase.setPurchaseTime(LocalDateTime.now());
         purchase.setStatus("HOLDING");
         purchase.setTransactionTraceId(request.getTransactionTraceId());
+        purchase.setProductName(product.getProductName());
         return purchase;
     }
 

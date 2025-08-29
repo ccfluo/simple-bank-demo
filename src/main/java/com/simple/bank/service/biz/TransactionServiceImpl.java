@@ -2,7 +2,6 @@ package com.simple.bank.service.biz;
 
 import com.simple.bank.api.request.AccountUpdateRequest;
 import com.simple.bank.api.request.TransactionRequest;
-import com.simple.bank.converter.AccountConverter;
 import com.simple.bank.converter.TransactionConverter;
 import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.dto.AccountTransactionDTO;
@@ -35,16 +34,10 @@ public class TransactionServiceImpl implements TransactionService {
     private AccountMapper accountMapper;
 
     @Autowired
-    private AccountInquireService accountInquireService;
-
-    @Autowired
     private AccountMaintService accountMaintService;
 
     @Autowired
     private TransactionConverter transactionConverter;
-
-    @Autowired
-    private AccountConverter accountConverter;
 
     @Autowired
     private TransactionValidator transactionValidator;
@@ -79,7 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public AccountTransactionDTO creditAccountBalance(TransactionRequest transactionRequest) throws BusinessException {
-//        AccountDTO accountDTO = accountInquireService.getAccountById(transactionRequest.getAccountId());
+
         AccountEntity accountEntity = accountMapper.getAccountByIdForUpdate(transactionRequest.getAccountId());
         transactionValidator.ValidateCreditAccountBalance(transactionRequest);
 
@@ -92,6 +85,7 @@ public class TransactionServiceImpl implements TransactionService {
         accountUpdateRequest.setAccount(accountDTO);
 
         AccountDTO updatedAccountDTO = accountMaintService.updateAccount(accountUpdateRequest);
+        log.info("###phoebe: " + updatedAccountDTO);
 
         //log transaction to transaction history
         AccountTransaction accountTransaction = new AccountTransaction();
@@ -139,7 +133,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     public AccountTransactionDTO debitAccountBalance(TransactionRequest transactionRequest) throws BusinessException {
 
-//        AccountDTO accountDTO = accountInquireService.getAccountById(transactionRequest.getAccountId());
         AccountEntity accountEntity = accountMapper.getAccountByIdForUpdate(transactionRequest.getAccountId());
         if (accountEntity == null) {
             throw new BusinessException("NOT_FOUND", "Account with id " + transactionRequest.getAccountId() + " not found");
@@ -183,15 +176,23 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<AccountTransactionDTO> getTransactionHistory(Long accountId) throws BusinessException {
-        // 验证账户存在
-        accountInquireService.getAccountById(accountId);
+    public List<AccountTransactionDTO> getTransactionHistoryByAccountId(Long accountId) throws BusinessException {
 
         List<AccountTransaction> transactions = transactionMapper.getTransactionsByAccountId(accountId);
         return transactions.stream()
                 .map(transactionConverter::transactionToDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<AccountTransactionDTO> getTransactionHistoryByCustomerId(Long customerId) throws BusinessException {
+
+        List<AccountTransaction> transactions = transactionMapper.getTransactionsByCustomerId(customerId);
+        return transactions.stream()
+                .map(transactionConverter::transactionToDto)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public List<AccountTransactionDTO> getTransactionBetween(LocalDateTime start, LocalDateTime end) throws BusinessException {

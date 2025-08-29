@@ -21,10 +21,10 @@ public class TransferValidator {
     public void validateBasicInput(TransferRequest request) throws BusinessException {
         // 1. validate input
         if (request.getFromAccountId() == null) {
-            throw new BusinessException("INVALID_FIELD", "From account ID must not be empty");
+            throw new BusinessException("INVALID_FIELD", "From account id must not be empty");
         }
         if (request.getToAccountId() == null) {
-            throw new BusinessException("INVALID_FIELD", "To account ID must not be empty");
+            throw new BusinessException("INVALID_FIELD", "To account id must not be empty");
         }
         if (request.getFromAccountId().equals(request.getToAccountId())) {
             throw new BusinessException("INVALID_TRANSFER", "Cannot transfer to the same account");
@@ -47,7 +47,7 @@ public class TransferValidator {
 
         // 3. verify account balance
         if (request.getTransferAmount().compareTo(fromAccount.getBalance()) > 0) {
-            throw new BusinessException("INSUFF_BALN", "Insufficient Balance");
+            throw new BusinessException("INSUFFICIENT_BALANCE", "Insufficient Balance");
         }
 
         // 4. verify if duplicate transaction

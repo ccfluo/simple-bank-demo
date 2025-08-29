@@ -10,7 +10,7 @@ import java.util.List;
 
 @Mapper
 public interface ProductPurchaseMapper {
-    // 新增购买记录
+    // create a purchase record
     @Insert("INSERT INTO product_purchase (" +
             "product_id, customer_id, account_id, purchase_amount, purchase_time, status, " +
             "transaction_trace_id)" +
@@ -19,11 +19,17 @@ public interface ProductPurchaseMapper {
     @Options(useGeneratedKeys = true, keyProperty = "purchaseId", keyColumn = "purchase_id")
     int insertPurchase(ProductPurchaseEntity entity);
 
-    // 查询用户购买记录
-    @Select("SELECT * FROM product_purchase WHERE customer_id = #{customerId}")
+    // inquire customer purchase
+    @Select("SELECT product_purchase.*, wealth_product.product_name " +
+            "FROM product_purchase " +
+            "LEFT JOIN wealth_product ON product_purchase.product_id = wealth_product.product_id " +
+            "WHERE product_purchase.customer_id = #{customerId}")
     List<ProductPurchaseEntity> getPurchaseByCustomerId(Long customerId);
 
-    // 按追踪ID查询（防重复购买）
-    @Select("SELECT * FROM product_purchase WHERE transaction_trace_id = #{transactionTraceId}")
+    // inquire purchase by tranceid
+    @Select("SELECT product_purchase.*, wealth_product.product_name " +
+            "FROM product_purchase " +
+            "LEFT JOIN wealth_product ON product_purchase.product_id = wealth_product.product_id " +
+            "WHERE transaction_trace_id = #{transactionTraceId}")
     ProductPurchaseEntity getPurchaseByTraceId(String transactionTraceId);
 }

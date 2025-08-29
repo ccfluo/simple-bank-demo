@@ -11,7 +11,7 @@ public interface TransactionService {
     // deposit with lock
     AccountTransactionDTO deposit(TransactionRequest transactionRequest) throws BusinessException;
 
-//    // deposit without lock
+    // deposit without lock
 //    AccountTransactionDTO doDeposit(TransactionRequest transactionRequest) throws BusinessException;
 
     // credit account balance for internal use(no SMS/email sending)
@@ -20,13 +20,15 @@ public interface TransactionService {
     // withdraw with lock
     AccountTransactionDTO withdraw(TransactionRequest transactionRequest) throws BusinessException;
 
-//    // withdraw without lock
+    // withdraw without lock
 //    AccountTransactionDTO doWithdraw(TransactionRequest transactionRequest) throws BusinessException;
 
     // debit account balance for internal use(no SMS/email sending)
     AccountTransactionDTO debitAccountBalance(TransactionRequest transactionRequest) throws BusinessException;
 
-    List<AccountTransactionDTO> getTransactionHistory(Long accountId) throws BusinessException;
+    List<AccountTransactionDTO> getTransactionHistoryByAccountId(Long accountId) throws BusinessException;
+
+    List<AccountTransactionDTO> getTransactionHistoryByCustomerId(Long customerId) throws BusinessException;
 
     List<AccountTransactionDTO> getTransactionBetween(LocalDateTime start, LocalDateTime end) throws BusinessException;
 }

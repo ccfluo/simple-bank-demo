@@ -2,15 +2,15 @@ package com.simple.bank.controller;
 
 import com.simple.bank.api.request.TransactionRequest;
 import com.simple.bank.api.request.TransferRequest;
-import com.simple.bank.api.response.TransactionResponse;
-import com.simple.bank.api.response.ListOfTransactionResponse;
-import com.simple.bank.api.response.TransferResponse;
+import com.simple.bank.api.response.*;
 import com.simple.bank.dto.AccountTransactionDTO;
+import com.simple.bank.dto.Response;
 import com.simple.bank.dto.TransferDTO;
 import com.simple.bank.service.biz.TransactionService;
 import com.simple.bank.service.biz.TransferService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -37,15 +37,39 @@ public class TransactionController {
         return ResponseEntity.ok(new TransactionResponse(accountTransactionDTO, "Withdraw successfully"));
     }
 
-    @GetMapping("/history/{accountId}") // TODO:pagination to be handled
-    public ResponseEntity<ListOfTransactionResponse> getTransactionHistory(@PathVariable Long accountId) {
-        List<AccountTransactionDTO> accountTransactionDTOs = transactionService.getTransactionHistory(accountId);
-        return ResponseEntity.ok(new ListOfTransactionResponse(accountTransactionDTOs));
+    // /transaction/history/account?id=123
+    @GetMapping("/history/account")
+    public ResponseEntity<ListOfTransactionResponse> getTransactionHistoryByAccount(
+        @RequestParam(name = "id" ,defaultValue = "0") Long id){
+        List<AccountTransactionDTO> transactionDTOList = transactionService.getTransactionHistoryByAccountId(id);
+
+        if (transactionDTOList == null || transactionDTOList.isEmpty()) {
+            ListOfTransactionResponse responseList = new ListOfTransactionResponse(null);
+            responseList.setResponse(new Response("NOT_FOUND", "No transaction found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseList);
+        }
+
+        return ResponseEntity.ok(new ListOfTransactionResponse(transactionDTOList));
+    }
+
+    // /transaction/history/customer?id=123
+    @GetMapping("/history/customer")
+    public ResponseEntity<ListOfTransactionResponse> getTransactionHistoryByCustomer(
+            @RequestParam(name = "id" ,defaultValue = "0") Long id){
+        List<AccountTransactionDTO> transactionDTOList = transactionService.getTransactionHistoryByCustomerId(id);
+
+        if (transactionDTOList == null || transactionDTOList.isEmpty()) {
+            ListOfTransactionResponse responseList = new ListOfTransactionResponse(null);
+            responseList.setResponse(new Response("NOT_FOUND", "No transaction found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseList);
+        }
+
+        return ResponseEntity.ok(new ListOfTransactionResponse(transactionDTOList));
     }
 
     @PostMapping("/transfer")
     public ResponseEntity<TransferResponse> transfer(@RequestBody TransferRequest request) {
         TransferDTO transferDTO = transferService.transfer(request);
-        return ResponseEntity.ok(new TransferResponse(transferDTO, "Transfer succesfully"));
+        return ResponseEntity.ok(new TransferResponse(transferDTO, "Transfer successfully"));
     }
 }

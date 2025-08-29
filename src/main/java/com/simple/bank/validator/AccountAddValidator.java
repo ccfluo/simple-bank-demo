@@ -35,7 +35,6 @@ public class AccountAddValidator {
 
     }
 
-    /* customerId非空且有效 */
     private void validateInputFields(AccountDTO accountDTO) {
         if (accountDTO.getAccountId() != null) {
             throw new BusinessException("INVALID_FIELD",
@@ -57,7 +56,7 @@ public class AccountAddValidator {
 
         if (accountDTO.getBalance().compareTo(BigDecimal.ZERO) < 0){
             throw new BusinessException("INVALID_FIELD",
-                    "Insufficient balance");
+                    "Balance must be >= 0");
         }
 
 //        if (accountDTO.getAccountStatus() == null || accountDTO.getAccountStatus().trim().isEmpty()){

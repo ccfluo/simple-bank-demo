@@ -66,14 +66,14 @@ public class AccountInquireServiceImpl implements AccountInquireService {
     @Transactional(readOnly = true)
     public List<AccountDTO> getAccountByCustomerId(Long customerId) throws BusinessException {
         List<AccountEntity> accountEntityList = accountMapper.getAccountByCustomerId(customerId); // call Mapper to inquire
-        if (accountEntityList.isEmpty()) {
-            throw new BusinessException("NOT_FOUND", "Account not found");
-        } else {
+//        if (accountEntityList.isEmpty()) {
+//            throw new BusinessException("NOT_FOUND", "Account not found");
+//        } else {
             List<AccountDTO> accountDTOList = accountEntityList.stream()
                     .map(accountEntity -> accountConverter.accountToDto(accountEntity))
                     .collect(Collectors.toList());
             return accountDTOList;
-        }
+//        }
     }
 
 }
