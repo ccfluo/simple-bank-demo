@@ -76,7 +76,7 @@ public class ProductStockWarmupServiceImpl implements ProductStockWarmupService 
             log.info("[Product Warmup] Total {} hot product(s) warmed up!", warmupProductCount);
             return true;
         } else {
-            log.warn("[Product Warmup] Not all hot products warmed up! Total {} warmed up; Total {} not warm up {}.",
+            log.warn("[Product Warmup] Not all hot products warmed up! Total {} warmed up; Total {} not warm up.",
                     warmupProductCount, (hotProducts.size()-warmupProductCount) );
             return false;
         }
