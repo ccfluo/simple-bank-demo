@@ -33,7 +33,7 @@ public class ProductRedisServiceImpl implements ProductRedisService {
             // JsonUtils.parseObject will return null and assign to long ->  NullPointerException
             return null;
         }
-        long amountInCent = JsonUtils.parseObject(stringRedisTemplate.opsForValue().get(redisKey), long.class);
+        Long amountInCent = JsonUtils.parseObject(stringRedisTemplate.opsForValue().get(redisKey), long.class);
         return (centToYuan(amountInCent));
     }
 
