@@ -1,9 +1,8 @@
 package com.simple.bank.config;
 
-//import com.simple.bank.job.DemoJob01;
-//import com.simple.bank.job.DemoJob02;
 import com.simple.bank.job.JobEnd;
 import com.simple.bank.job.JobStart;
+import com.simple.bank.job.RedisToDbSyncJob;
 import com.simple.bank.job.TransactionStatisticsJob;
 import org.quartz.*;
 import org.quartz.listeners.JobChainingJobListener;
@@ -25,7 +24,6 @@ public class ScheduleConfiguration {
                     .storeDurably()
                     .build();
         }
-
 
         @Bean
         public Trigger jobStartTrigger() {
@@ -62,18 +60,6 @@ public class ScheduleConfiguration {
                     .storeDurably() // 没有 Trigger 关联的时候任务是否被保留。因为创建 JobDetail 时，还没 Trigger 指向它，所以需要设置为 true ，表示保留。
                     .build();
         }
-//
-//        @Bean
-//        public Trigger transactionStatisticsJobTrigger() {
-//            // 基于 Quartz Cron 表达式的调度计划的构造器
-//            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.dailyAtHourAndMinute(9, 37);
-//            // Trigger 构造器
-//            return TriggerBuilder.newTrigger()
-//                    .forJob(transactionStatisticsJob()) // 对应 Job 为 transactionStatisticsJob
-//                    .withIdentity("transactionStatisticsJobTrigger") // 名字为 transactionStatisticsJobTrigger
-//                    .withSchedule(scheduleBuilder) // 对应 Schedule 为 scheduleBuilder
-//                    .build();
-//        }
     }
 
     @Configuration
@@ -102,4 +88,27 @@ public class ScheduleConfiguration {
 
     }
 
+    @Configuration
+    public static class RedisToKafkaSyncJobConfiguration {
+
+        @Bean
+        public JobDetail redisToDbSyncJob() {
+            return JobBuilder.newJob(RedisToDbSyncJob.class)
+                    .withIdentity("redisToDbSyncJob")
+                    .storeDurably()
+                    .build();
+        }
+
+        @Bean
+        public Trigger redisToKafkaSyncJobTrigger() {
+            // Cron表达式：每5分钟执行一次（秒 分 时 日 月 周 年）
+            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule("0 0/5 * * * ?");
+
+            return TriggerBuilder.newTrigger()
+                    .forJob(redisToDbSyncJob())
+                    .withIdentity("redisToDbSyncJobTrigger")
+                    .withSchedule(scheduleBuilder)
+                    .build();
+        }
+    }
 }

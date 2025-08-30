@@ -30,6 +30,6 @@ public class CustomerRedisServiceImpl implements CustomerRedisService {
     }
 
     private static String formatKey(Long customerId) {
-        return String.format("CUSTOMER#%d", customerId);
+        return String.format("customer:%d", customerId);
     }
 }

@@ -10,4 +10,6 @@ public interface CustomerInquireService {
 
     List<CustomerDTO> getAllCustomers() throws BusinessException;
 
+    boolean isCustomerExists(Long customerId);
+
 }

@@ -1,13 +1,20 @@
 package com.simple.bank.service.biz;
 
 import com.simple.bank.dto.ProductDTO;
+import com.simple.bank.dto.ProductMiniDTO;
 import com.simple.bank.exception.BusinessException;
+
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface ProductService {
-    // 查询所有在售产品
-    List<ProductDTO> getOnSaleProducts() throws BusinessException;
+    // inquire all products on sale
+    List<ProductMiniDTO> getOnSaleProducts() throws BusinessException;
 
-    // 按ID查询产品
+    // inquire product given productId
     ProductDTO getProductById(Long productId) throws BusinessException;
+
+    // batch update remaining amount
+    void batchUpdateRemainingAmount(Map<Long, BigDecimal> productRemainingAmounts);
 }

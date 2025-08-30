@@ -2,8 +2,7 @@ package com.simple.bank.validator;
 
 import com.simple.bank.api.request.TransactionRequest;
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.mapper.TransactionMapper;
-import com.simple.bank.service.biz.OtherService;
+import com.simple.bank.service.biz.AccountInquireService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,14 +14,14 @@ import java.math.BigDecimal;
 public class TransactionValidator {
 
     @Autowired
-    private OtherService otherService;
+    private AccountInquireService accountInquireService;
 
 //    @Autowired
 //    private TransactionMapper transactionMapper;
 
     public void ValidateCreditAccountBalance(TransactionRequest transactionRequest) {
 
-        if (!otherService.isAccountExists(transactionRequest.getAccountId())){
+        if (!accountInquireService.isAccountExists(transactionRequest.getAccountId())){
             throw new BusinessException("NOT_FOUND", "Account with id " + transactionRequest.getAccountId()+ " not found");
         }
 

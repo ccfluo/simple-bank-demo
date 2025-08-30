@@ -2,6 +2,7 @@ package com.simple.bank.service.biz;
 
 import com.simple.bank.converter.ProductConverter;
 import com.simple.bank.dto.ProductDTO;
+import com.simple.bank.dto.ProductMiniDTO;
 import com.simple.bank.entity.ProductEntity;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.ProductMapper;
@@ -10,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,30 +30,22 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRedisService productRedisService;
 
+    @Autowired
+    private ProductStockWarmupService productStockWarmupService;
+
     @Override
     @Transactional(readOnly = true)
-    public List<ProductDTO> getOnSaleProducts() throws BusinessException {
-        // try to get from Redis
-        List<ProductDTO> cachedProducts = productRedisService.getOnSaleProducts();
-        if (cachedProducts != null && !cachedProducts.isEmpty()) {
-            log.debug("Get on-sale products from Redis");
-            return cachedProducts;
-        }
-
-        // data not in redis, inquire DB
+    public List<ProductMiniDTO> getOnSaleProducts() throws BusinessException {
         List<ProductEntity> productEntities = productMapper.selectOnSaleProducts();
         if (productEntities.isEmpty()) {
             throw new BusinessException("NOT_FOUND", "No on-sale financial products found");
         }
 
-        // update redis after get data from DB
-        List<ProductDTO> productDTOs = productEntities.stream()
-                .map(productConverter::productToDto)
+        List<ProductMiniDTO> productMiniDTOs = productEntities.stream()
+                .map(productConverter::productToMiniDto)
                 .collect(Collectors.toList());
-        productRedisService.setOnSaleProducts(productDTOs);
-        log.debug("Get on-sale products from DB, total: {}", productDTOs.size());
 
-        return productDTOs;
+        return productMiniDTOs;
     }
 
     @Override
@@ -58,15 +53,6 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO getProductById(Long productId) throws BusinessException {
         if (productId == null) {
             throw new BusinessException("INVALID_PARAM", "Product ID cannot be null");
-        }
-
-        // try to get product from redis
-        ProductDTO cachedProduct = productRedisService.getById(productId);
-        if (cachedProduct != null) {
-            // validate if product in redis is still valid
-            validateProductStatus(cachedProduct);
-            log.info("Get product {} from Redis", productId);
-            return cachedProduct;
         }
 
         // get from DB if not in redis
@@ -78,11 +64,49 @@ public class ProductServiceImpl implements ProductService {
         ProductDTO productDTO = productConverter.productToDto(productEntity);
         validateProductStatus(productDTO);
 
-        // update redis
-        productRedisService.set(productDTO);
-        log.info("Get product {} from DB", productId);
+        // if it's a hot product, update remaining amount from redis
+        if (productDTO.getIsHot() != null && productDTO.getIsHot() > 0) {
+            String redisKey = "product:stock:" + productId;
+//            Long stockInCent = redisService.getLong(redisKey);
+            BigDecimal cachedRemainingAmount = productRedisService.getRemainingAmountById(productId);
+            if (cachedRemainingAmount == null) {
+                // Redis缓存未命中，触发实时预热（避免缓存穿透）
+                log.warn("Hot product Redis not hit，trigger warm up now，productId: {}", productId);
+                productStockWarmupService.warmupProductStock(productId);
+                // inquire redis again in case other txn has updated remaining amount in redis after warmup above
+                cachedRemainingAmount = productRedisService.getRemainingAmountById(productId);
+            }
+
+            productDTO.setRemainingAmount(cachedRemainingAmount);
+        }
 
         return productDTO;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchUpdateRemainingAmount(Map<Long, BigDecimal> productRemainingAmounts) {
+        if (productRemainingAmounts.isEmpty()) {
+            return;
+        }
+
+        // 转换为需要更新的实体列表
+        List<ProductEntity> products = productRemainingAmounts.entrySet().stream()
+                .map(entry -> {
+                    ProductEntity product = new ProductEntity();
+                    product.setProductId(entry.getKey());
+                    product.setRemainingAmount(entry.getValue());
+                    return product;
+                })
+                .collect(Collectors.toList());
+
+        // 调用Mapper进行批量更新
+        int updatedCount = productMapper.batchUpdateRemainingAmount(products);
+        if (updatedCount > 0) {
+            log.info("Batch sync product remaining amount to DB，updated count：{}", updatedCount);
+        } else {
+            log.warn("Product not found during batch sync product remaining amount to DB.");
+        }
     }
 
     private void validateProductStatus(ProductDTO productDTO) throws BusinessException {

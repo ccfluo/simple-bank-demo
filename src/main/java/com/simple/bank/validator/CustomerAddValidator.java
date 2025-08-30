@@ -3,15 +3,10 @@ package com.simple.bank.validator;
 import com.simple.bank.api.request.CustomerAddRequest;
 import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.biz.OtherService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component // 注入Spring容器，便于在Service中调用
 public class CustomerAddValidator {
-
-    @Autowired
-    private OtherService otherService;
 
     public void Validate(CustomerAddRequest customerAddRequest) {
         // 1. verify input fields;

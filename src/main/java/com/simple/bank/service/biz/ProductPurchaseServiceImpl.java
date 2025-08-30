@@ -5,6 +5,7 @@ import com.simple.bank.api.request.TransactionRequest;
 import com.simple.bank.converter.ProductConverter;
 import com.simple.bank.dto.*;
 import com.simple.bank.entity.ProductPurchaseEntity;
+import com.simple.bank.entity.ProductPurchaseExpand;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.ProductMapper;
 import com.simple.bank.mapper.ProductPurchaseMapper;
@@ -16,6 +17,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,13 +46,17 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
     private RedissionLock redissionLock;
     @Autowired
     private MessageNotification messageNotification;
+    @Autowired
+    private ProductRedisService productRedisService;
+    @Autowired
+    private ProductStockWarmupService productStockWarmupService;
 
     @Override
     @Transactional
     public ProductPurchaseDTO purchase(ProductPurchaseRequest request) throws BusinessException {
         // lock until purchase transaction completed
         // -- only 1 thread can update Product remaining amount at the same time
-        return redissionLock.lock("purchase_product_lock:" + request.getProductId(), 500L,
+        return redissionLock.lock("purchase:product:lock:" + request.getProductId(), 500L,
                 () -> doPurchase(request));
     }
 
@@ -68,13 +74,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         AccountTransactionDTO accountTransactionDTO = debitAccountBalance(request);
 
         // 4. deduct product remaining amount - sql will check if still have enough remaining amount again.
-        int productResult = productMapper.deductRemainingAmount(
-                request.getProductId(),
-                request.getPurchaseAmount()
-        );
-        if (productResult < 1) {
-            throw new BusinessException("PRODUCT_OUT_OF_STOCK", "Insufficient remaining subscription quota");
-        }
+        boolean result = deductProductStock(request.getProductId(), request.getPurchaseAmount(), product.getIsHot());
 
         // 5. log purchase record
         ProductPurchaseEntity purchaseEntity = createPurchaseRecord(request, product, accountDTO.getCustomerId());
@@ -89,6 +89,22 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         messageNotification.sendPurchaseNotification(purchaseEntity, accountTransactionDTO.getAccountBalance(), customerDTO.getMobile(), customerDTO.getEmail());
 
         return productConverter.productPurchaseToDto(purchaseEntity);
+    }
+
+
+    @Override
+    public List<ProductPurchaseDTO> getPurchaseHistory(Long customerId) throws BusinessException {
+        List<ProductPurchaseExpand> productPurseList = purchaseMapper.getPurchaseByCustomerId(customerId);
+        return productPurseList.stream()
+                .map(productConverter::productPurchaseExpandToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductPurchaseDTO getPurchaseByTraceId(String transactionTraceId) throws BusinessException {
+        ProductPurchaseExpand productPurseExpand = purchaseMapper.getPurchaseByTraceId(transactionTraceId);
+        ProductPurchaseDTO productPurchaseDTO = productConverter.productPurchaseExpandToDto(productPurseExpand);
+        return productPurchaseDTO;
     }
 
     // deduct purchase amount from account
@@ -119,23 +135,45 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         purchase.setPurchaseTime(LocalDateTime.now());
         purchase.setStatus("HOLDING");
         purchase.setTransactionTraceId(request.getTransactionTraceId());
-        purchase.setProductName(product.getProductName());
+//        purchase.setProductName(product.getProductName());   // ###phoebe
         return purchase;
     }
 
-    @Override
-    public List<ProductPurchaseDTO> getPurchaseHistory(Long customerId) throws BusinessException {
-        List<ProductPurchaseEntity> productPurseList = purchaseMapper.getPurchaseByCustomerId(customerId);
+    private boolean deductProductStock(Long productId, BigDecimal amount, Integer isHot) {
 
-        return productPurseList.stream()
-                .map(productConverter::productPurchaseToDto)
-                .collect(Collectors.toList());
-    }
+        //non-hot product remaining amount deduct
+        if (isHot < 1) {
+            int productResult = productMapper.deductRemainingAmount(productId, amount);
+            if (productResult < 1) {
+                throw new BusinessException("PRODUCT_OUT_OF_STOCK", "Insufficient remaining subscription quota");
+            }
+            return true;
+        }
 
-    @Override
-    public ProductPurchaseDTO getPurchaseByTraceId(String transactionTraceId) throws BusinessException {
-        ProductPurchaseEntity productPurseEntity = purchaseMapper.getPurchaseByTraceId(transactionTraceId);
-        ProductPurchaseDTO productPurchaseDTO = productConverter.productPurchaseToDto(productPurseEntity);
-        return productPurchaseDTO;
+        //hot product remaining amount deduct TODO: check fallback reasonable?
+        BigDecimal cachedRemainingAmount = productRedisService.deductRemainingAmountById(productId, amount);
+        if (cachedRemainingAmount == null) {
+            if (productStockWarmupService.warmupProductStock(productId)) {
+                // deduct amount again
+                cachedRemainingAmount = productRedisService.deductRemainingAmountById(productId, amount);
+                if (cachedRemainingAmount == null) {
+                    throw new BusinessException("PRODUCT_EXCEPTION", "Hot product exception, pls check backend");
+                }
+            } else {
+                throw new BusinessException("PRODUCT_EXCEPTION", "Hot product exception, pls check backend");
+            }
+
+        }
+
+        if (cachedRemainingAmount.compareTo(BigDecimal.ZERO) < 0) {
+            // deduct amount failed, rollback Redis
+            productRedisService.increaseRemainingAmountById(productId, amount);
+            log.warn("Insufficient remaining subscription quota for hot product: {}, required amount: {}", productId, amount);
+            throw new BusinessException("PRODUCT_INSUFFICIENT", "Insufficient remaining subscription quota");
+        }
+
+        // No need redis sync to DB ==> schedule regularly sync from redis to DB
+
+        return true;
     }
 }

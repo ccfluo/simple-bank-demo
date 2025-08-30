@@ -3,7 +3,7 @@ package com.simple.bank.validator;
 import com.simple.bank.api.request.AccountUpdateRequest;
 import com.simple.bank.dto.AccountDTO;
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.biz.OtherService;
+import com.simple.bank.service.biz.AccountInquireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class AccountUpdateValidator {
 
     @Autowired
-    private OtherService otherService;
+    private AccountInquireService accountInquireService;
 
     public void Validate(AccountUpdateRequest accountUpdateRequest) {
         // 1. verify accountId <> null && > 0;
@@ -21,7 +21,7 @@ public class AccountUpdateValidator {
         validateAccountId(accountId);
 
         // 2. check if account exists or not
-        if (!otherService.isAccountExists(accountId)) {
+        if (!accountInquireService.isAccountExists(accountId)) {
             throw new BusinessException("NOT_FOUND", "Account to be updated not existing");
         }
 

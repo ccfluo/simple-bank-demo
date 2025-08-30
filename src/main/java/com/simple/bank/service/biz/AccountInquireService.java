@@ -12,5 +12,5 @@ public interface AccountInquireService {
 
     List<AccountDTO> getAccountByCustomerId(Long customerId) throws BusinessException;
 
-
+    boolean isAccountExists(Long accountId);
 }

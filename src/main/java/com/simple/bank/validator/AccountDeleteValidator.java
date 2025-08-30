@@ -1,7 +1,7 @@
 package com.simple.bank.validator;
 
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.biz.OtherService;
+import com.simple.bank.service.biz.AccountInquireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component;
 public class AccountDeleteValidator {
 
     @Autowired
-    private OtherService otherService;
+    private AccountInquireService accountInquireService;
 
     public void Validate(Long accountId) {
         // 1. verify accountId;
         validateAccountId(accountId);
 
-        // 2. check if customer exists or not
-        if (!otherService.isAccountExists(accountId)) {
+        // 2. check if account exists or not
+        if (!accountInquireService.isAccountExists(accountId)) {
             throw new BusinessException("NOT_FOUND", "Account to be deleted not existing");
         }
     }

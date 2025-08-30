@@ -1,5 +1,6 @@
 package com.simple.bank.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +9,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import java.util.Arrays;
 import java.util.List;
 
-
+@Slf4j
 @Configuration
 public class KafkaMetadataConfig {
 
@@ -35,12 +36,12 @@ public class KafkaMetadataConfig {
                 for(String topic: TOPIC_NAMES) {
                     kafkaTemplate.getProducerFactory().createProducer()
                             .partitionsFor(topic);
-                    System.out.println("Kafka metadata for topic [" + topic + "] initialized successfully");
+                    log.info("[Kafka initialization] initialize metadata for topic [" + topic + "] initialized successfully");
                 }
 
             } catch (Exception e) {
                 // failure handling: if Kafka not started
-                System.err.println("Failed to initialize Kafka metadata topic, error: " + e.getMessage());
+                log.error("[Kafka initialization] Failed to initialize Kafka metadata topic, error: " + e.getMessage());
                 // throw new RuntimeException("Kafka metadata initialization failed", e);
             }
         };

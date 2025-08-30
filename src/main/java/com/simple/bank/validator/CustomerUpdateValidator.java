@@ -3,7 +3,7 @@ package com.simple.bank.validator;
 import com.simple.bank.api.request.CustomerUpdateRequest;
 import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.exception.BusinessException;
-import com.simple.bank.service.biz.OtherService;
+import com.simple.bank.service.biz.CustomerInquireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class CustomerUpdateValidator {
 
     @Autowired
-    private OtherService otherService;
+    private CustomerInquireService customerInquireService;
 
     public void Validate(CustomerUpdateRequest customerUpdateRequest) {
         // 1. verify customerId <> null && > 0;
@@ -19,7 +19,7 @@ public class CustomerUpdateValidator {
         validateCustomerId(customerId);
 
         // 2. check if customer exists or not
-        if (!otherService.isCustomerExists(customerId)) {
+        if (!customerInquireService.isCustomerExists(customerId)) {
             throw new BusinessException("NOT_FOUND","Customer to be updated not existing");
         }
 

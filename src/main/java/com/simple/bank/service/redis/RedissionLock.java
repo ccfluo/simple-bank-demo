@@ -49,7 +49,7 @@ public class RedissionLock {
         RLock lock2 = redissonClient.getLock("account:lock:" + lockSecond);
 
         try {
-            // 尝试获取两把锁（最多等待waitTime毫秒）
+            // try to lock 2
             boolean locked1 = lock1.tryLock(leaseTimeMillis, 500, TimeUnit.MILLISECONDS);
             if (!locked1) {
                 throw new BusinessException("SYSTEM_BUSY", "System busy, try again later");
@@ -57,7 +57,7 @@ public class RedissionLock {
 
             boolean locked2 = lock2.tryLock(leaseTimeMillis, 500, TimeUnit.MILLISECONDS);
             if (!locked2) {
-                lock1.unlock(); // 释放已获取的第一把锁
+                lock1.unlock(); // release locked 1st lock
                 throw new BusinessException("SYSTEM_BUSY", "System busy, try again later");
             }
             // execute biz logic
@@ -67,7 +67,7 @@ public class RedissionLock {
             Thread.currentThread().interrupt();
             throw new BusinessException("OPERATION_INTERRUPTED", "Operation interrupted");
         } finally {
-            // 按相反顺序释放锁
+            // release lock in reverse sequence
             if (lock2.isHeldByCurrentThread()) {
                 lock2.unlock();
             }

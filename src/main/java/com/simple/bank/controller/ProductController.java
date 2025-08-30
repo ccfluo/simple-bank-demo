@@ -1,12 +1,8 @@
 package com.simple.bank.controller;
 
 import com.simple.bank.api.request.ProductPurchaseRequest;
-import com.simple.bank.api.response.ListOfProductPurchaseResponse;
-import com.simple.bank.api.response.ProductPurchaseResponse;
-import com.simple.bank.api.response.ListOfProductResponse;
-import com.simple.bank.dto.ProductDTO;
-import com.simple.bank.dto.ProductPurchaseDTO;
-import com.simple.bank.dto.Response;
+import com.simple.bank.api.response.*;
+import com.simple.bank.dto.*;
 import com.simple.bank.service.biz.ProductService;
 import com.simple.bank.service.biz.ProductPurchaseService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +25,15 @@ public class ProductController {
     // inquire on-sale product
     @GetMapping("/on-sale")
     public ResponseEntity<ListOfProductResponse> getOnSaleProducts() {
-        List<ProductDTO> products = productService.getOnSaleProducts();
+        List<ProductMiniDTO> products = productService.getOnSaleProducts();
         return ResponseEntity.ok(new ListOfProductResponse(products));
+    }
+
+    // inquire a product
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponse> getById(@PathVariable Long productId) {
+        ProductDTO productDTO = productService.getProductById(productId);
+        return ResponseEntity.ok(new ProductResponse(productDTO));
     }
 
     // purchase

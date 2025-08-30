@@ -7,24 +7,28 @@ import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.ProductPurchaseMapper;
 import com.simple.bank.service.biz.AccountInquireService;
 
+import com.simple.bank.service.biz.ProductRedisService;
 import com.simple.bank.service.biz.ProductService;
+import com.simple.bank.service.biz.ProductStockWarmupService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Component
 public class ProductPurchaseValidator {
 
-//    @Autowired
-//    private ProductService productService;
     @Autowired
     private ProductPurchaseMapper productPurchaseMapper;
-//    @Autowired
-//    private AccountInquireService accountService;
+    @Autowired
+    private ProductRedisService productRedisService;
+    @Autowired
+    private ProductStockWarmupService productStockWarmupService;
 
-    public void validate(ProductPurchaseRequest request, ProductDTO product, BigDecimal accountBalance) throws BusinessException {
+    public void validate(ProductPurchaseRequest request, ProductDTO productDTO, BigDecimal accountBalance) throws BusinessException {
         // 1. validate input
         if (request.getProductId() == null) {
             throw new BusinessException("INVALID_FIELD", "Product Id must not be empty");
@@ -40,24 +44,41 @@ public class ProductPurchaseValidator {
         }
 
         // 2. validate product
-//        ProductDTO product = productService.getProductById(request.getProductId());
-        if (!"ON_SALE".equals(product.getStatus())) {
+        if (!"ON_SALE".equals(productDTO.getStatus())) {
             throw new BusinessException("PRODUCT_NOT_ON_SALE", "Product is not on sale");
         }
         LocalDateTime now = LocalDateTime.now();
-        if (now.isBefore(product.getStartDate()) || now.isAfter(product.getEndDate())) {
+        if (now.isBefore(productDTO.getStartDate()) || now.isAfter(productDTO.getEndDate())) {
             throw new BusinessException("PRODUCT_NOT_IN_PERIOD", "Product is outside the subscription period");
         }
-        if (request.getPurchaseAmount().compareTo(product.getMinPurchaseAmount()) < 0) {
+        if (request.getPurchaseAmount().compareTo(productDTO.getMinPurchaseAmount()) < 0) {
             throw new BusinessException("AMOUNT_BELOW_MIN", "Investment amount < the minimum subscription amount");
         }
-        if (product.getMaxPurchaseAmount() != null &&
-                request.getPurchaseAmount().compareTo(product.getMaxPurchaseAmount()) > 0) {
+        if (productDTO.getMaxPurchaseAmount() != null &&
+                request.getPurchaseAmount().compareTo(productDTO.getMaxPurchaseAmount()) > 0) {
             throw new BusinessException("AMOUNT_EXCEED_MAX", "Investment amount > the subscription limit");
         }
-        if (request.getPurchaseAmount().compareTo(product.getRemainingAmount()) > 0) {
+
+        // validate if still have enough remaining amount to purchase
+        Integer isHot = productDTO.getIsHot();
+        BigDecimal remainingAmount;
+        // hot product : get remaining amount from redis; otherwise get it from DB(productDTO)
+        if (isHot != null && isHot > 0) {
+            remainingAmount = productRedisService.getRemainingAmountById(productDTO.getProductId());
+            if (remainingAmount == null) {
+                // Redis缓存未命中，触发实时预热（避免缓存穿透）
+                log.warn("Hot product Redis not hit，trigger warm up now，productId: {}", productDTO.getProductId());
+                productStockWarmupService.warmupProductStock(productDTO.getProductId());
+                // inquire redis again in case other txn has updated remaining amount in redis after warmup above
+                remainingAmount = productRedisService.getRemainingAmountById(productDTO.getProductId());
+            }
+        }else {
+            remainingAmount = productDTO.getRemainingAmount();
+        }
+        if (request.getPurchaseAmount().compareTo(remainingAmount) > 0) {
             throw new BusinessException("PRODUCT_INSUFFICIENT", "Insufficient remaining subscription quota");
         }
+
 
         // 3. validate account
         if (accountBalance.compareTo(request.getPurchaseAmount()) < 0) {
@@ -65,8 +86,8 @@ public class ProductPurchaseValidator {
         }
 
         //4. validate traceid to avoid duplicate trx
-        ProductPurchaseEntity productPurseEntity = productPurchaseMapper.getPurchaseByTraceId(request.getTransactionTraceId());
-        if (productPurseEntity != null) {
+        int exists = productPurchaseMapper.existsByTraceId(request.getTransactionTraceId());
+        if (exists == 1) {
             throw new BusinessException("DUPLICATE_TRX", "Purchase " + request.getTransactionTraceId() + " processed by other transaction");
         }
     }

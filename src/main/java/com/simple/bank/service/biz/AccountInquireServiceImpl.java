@@ -19,7 +19,7 @@ public class AccountInquireServiceImpl implements AccountInquireService {
     @Autowired
     private AccountMapper accountMapper;  // auto inject the mapper
 
-//  @Autowired 是 Spring 的依赖注入注解，
+    //  @Autowired 是 Spring 的依赖注入注解，
 //  用于自动获取 Spring 容器中已管理的 Bean，并注入到当前类的属性中。
 //  告诉 Spring“我需要这个类型的实例，请从容器里找一个给我
     @Autowired
@@ -56,8 +56,8 @@ public class AccountInquireServiceImpl implements AccountInquireService {
             throw new BusinessException("NOT_FOUND", "Account not found");
         } else {
             List<AccountDTO> accountDTOList = accountEntityList.stream()
-                 .map(accountEntity -> accountConverter.accountToDto(accountEntity))
-                 .collect(Collectors.toList());
+                    .map(accountEntity -> accountConverter.accountToDto(accountEntity))
+                    .collect(Collectors.toList());
             return accountDTOList;
         }
     }
@@ -69,11 +69,17 @@ public class AccountInquireServiceImpl implements AccountInquireService {
 //        if (accountEntityList.isEmpty()) {
 //            throw new BusinessException("NOT_FOUND", "Account not found");
 //        } else {
-            List<AccountDTO> accountDTOList = accountEntityList.stream()
-                    .map(accountEntity -> accountConverter.accountToDto(accountEntity))
-                    .collect(Collectors.toList());
-            return accountDTOList;
+        List<AccountDTO> accountDTOList = accountEntityList.stream()
+                .map(accountEntity -> accountConverter.accountToDto(accountEntity))
+                .collect(Collectors.toList());
+        return accountDTOList;
 //        }
+    }
+
+    @Override
+    public boolean isAccountExists(Long accountId) {
+        int exists = accountMapper.existsById(accountId);
+        return (exists == 1);
     }
 
 }

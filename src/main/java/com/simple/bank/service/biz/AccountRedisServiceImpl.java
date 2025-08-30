@@ -32,6 +32,6 @@ public class AccountRedisServiceImpl implements AccountRedisService {
     }
 
     private static String formatKey(Long accountId) {
-        return String.format("ACCOUNT#%d", accountId);
+        return String.format("account:%d", accountId);
     }
 }

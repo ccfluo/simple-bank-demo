@@ -14,5 +14,5 @@ public class ProductPurchaseEntity {
     private LocalDateTime purchaseTime;
     private String status; // HOLDING, REDEEMED, EXPIRED
     private String transactionTraceId;
-    private String productName;   // From wealth_product table
+//    private String productName;   // From wealth_product table
 }

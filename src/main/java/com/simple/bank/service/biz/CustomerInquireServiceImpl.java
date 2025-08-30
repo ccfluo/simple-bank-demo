@@ -20,7 +20,7 @@ public class CustomerInquireServiceImpl implements CustomerInquireService {
     @Autowired
     private CustomerMapper customerMapper;  // auto inject the mapper
 
-//  @Autowired 是 Spring 的依赖注入注解，
+    //  @Autowired 是 Spring 的依赖注入注解，
 //  用于自动获取 Spring 容器中已管理的 Bean，并注入到当前类的属性中。
 //  告诉 Spring“我需要这个类型的实例，请从容器里找一个给我
     @Autowired
@@ -58,10 +58,16 @@ public class CustomerInquireServiceImpl implements CustomerInquireService {
             throw new BusinessException("NOT_FOUND", "No customer found");
         } else {
             List<CustomerDTO> customerDTOList = customerEntityList.stream()
-                 .map(customerEntity -> customerConverter.customerToDto(customerEntity))
-                 .collect(Collectors.toList());
+                    .map(customerEntity -> customerConverter.customerToDto(customerEntity))
+                    .collect(Collectors.toList());
             return customerDTOList;
         }
+    }
+
+    @Override
+    public boolean isCustomerExists(Long customerId) {
+        int exists = customerMapper.existsById(customerId);
+        return (exists == 1);
     }
 
 }
