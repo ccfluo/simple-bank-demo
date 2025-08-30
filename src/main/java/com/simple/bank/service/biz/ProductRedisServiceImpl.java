@@ -55,7 +55,10 @@ public class ProductRedisServiceImpl implements ProductRedisService {
     public BigDecimal deductProductStockById(Long productId, BigDecimal amount) {
         String redisKey = formatStockKey(productId);
         long value = yuanToCent(amount);
-        long remainingInCent = stringRedisTemplate.opsForValue().decrement(redisKey, value);
+        Long remainingInCent = stringRedisTemplate.opsForValue().decrement(redisKey, value);
+        if (remainingInCent == null) {
+            throw new RuntimeException("Redis stock decrement returned null, key: " + redisKey);
+        }
         return (centToYuan(remainingInCent));
     }
 
@@ -63,7 +66,10 @@ public class ProductRedisServiceImpl implements ProductRedisService {
     public BigDecimal increaseProductStockById(Long productId, BigDecimal amount) {
         String redisKey = formatStockKey(productId);
         long value = yuanToCent(amount);
-        long remainingInCent = stringRedisTemplate.opsForValue().increment(redisKey, value);
+        Long remainingInCent = stringRedisTemplate.opsForValue().increment(redisKey, value);
+        if (remainingInCent == null) {
+            throw new RuntimeException("Redis stock increment returned null, key: " + redisKey);
+        }
         return(centToYuan(remainingInCent));
     }
 

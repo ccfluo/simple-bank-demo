@@ -168,7 +168,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         if (cachedRemainingAmount.compareTo(BigDecimal.ZERO) < 0) {
             // deduct amount failed, rollback Redis
             productRedisService.increaseProductStockById(productId, amount);
-            log.warn("Insufficient remaining subscription quota for hot product: {}, required amount: {}", productId, amount);
+            log.warn("[Product Purchase] Insufficient remaining subscription quota for hot product: {}, required amount: {}", productId, amount);
             throw new BusinessException("PRODUCT_INSUFFICIENT", "Insufficient remaining subscription quota");
         }
 
