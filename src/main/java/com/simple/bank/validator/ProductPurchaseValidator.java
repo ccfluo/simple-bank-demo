@@ -2,13 +2,10 @@ package com.simple.bank.validator;
 
 import com.simple.bank.api.request.ProductPurchaseRequest;
 import com.simple.bank.dto.ProductDTO;
-import com.simple.bank.entity.ProductPurchaseEntity;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.ProductPurchaseMapper;
-import com.simple.bank.service.biz.AccountInquireService;
 
 import com.simple.bank.service.biz.ProductRedisService;
-import com.simple.bank.service.biz.ProductService;
 import com.simple.bank.service.biz.ProductStockWarmupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,13 +61,13 @@ public class ProductPurchaseValidator {
         BigDecimal remainingAmount;
         // hot product : get remaining amount from redis; otherwise get it from DB(productDTO)
         if (isHot != null && isHot > 0) {
-            remainingAmount = productRedisService.getRemainingAmountById(productDTO.getProductId());
+            remainingAmount = productRedisService.getProductStockById(productDTO.getProductId());
             if (remainingAmount == null) {
                 // Redis缓存未命中，触发实时预热（避免缓存穿透）
                 log.warn("Hot product Redis not hit，trigger warm up now，productId: {}", productDTO.getProductId());
                 productStockWarmupService.warmupProductStock(productDTO.getProductId());
                 // inquire redis again in case other txn has updated remaining amount in redis after warmup above
-                remainingAmount = productRedisService.getRemainingAmountById(productDTO.getProductId());
+                remainingAmount = productRedisService.getProductStockById(productDTO.getProductId());
             }
         }else {
             remainingAmount = productDTO.getRemainingAmount();

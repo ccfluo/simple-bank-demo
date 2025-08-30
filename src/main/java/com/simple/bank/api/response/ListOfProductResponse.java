@@ -1,7 +1,6 @@
 package com.simple.bank.api.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.simple.bank.dto.ProductDTO;
 import com.simple.bank.dto.ProductMiniDTO;
 import com.simple.bank.dto.Response;
 import lombok.Getter;

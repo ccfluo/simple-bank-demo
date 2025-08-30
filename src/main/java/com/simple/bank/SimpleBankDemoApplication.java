@@ -7,16 +7,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
-
-/**
- * @ClassName SimpleBankDemoApplication
- * @Description: 启动类
- * @Author Luo Chuanfen
- * @Date 2025/8/10
- * @Version V1.0
- **/
 
 @Slf4j
 @SpringBootApplication

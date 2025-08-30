@@ -1,6 +1,5 @@
 package com.simple.bank.mapper;
 
-import com.simple.bank.dto.ProductDTO;
 import com.simple.bank.entity.ProductEntity;
 import org.apache.ibatis.annotations.*;
 

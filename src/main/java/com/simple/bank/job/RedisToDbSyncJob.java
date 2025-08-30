@@ -25,7 +25,7 @@ public class RedisToDbSyncJob extends QuartzJobBean {
         log.info("[Product Stock Sync] Start product stock synchronization from Redis to DB");
         try {
             // 1. 从Redis获取所有产品的剩余金额
-            Map<Long, BigDecimal> productRemainingAmounts = productRedisService.getAllProductsRemainingAmount();
+            Map<Long, BigDecimal> productRemainingAmounts = productRedisService.getAllProductStock();
 
             if (productRemainingAmounts.isEmpty()) {
                 log.info("[Product Stock Sync] No product remaining amount found in Redis");

@@ -1,31 +1,19 @@
 package com.simple.bank.service.biz;
 
-import com.simple.bank.dto.ProductDTO;
-
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 
 public interface ProductRedisService {
-    void delete(Long productId);
 
-    ProductDTO getById(Long productId);
+    BigDecimal getProductStockById(Long productId);
 
-    void set(ProductDTO productDTO);
+    void setProductStockById(Long productId, BigDecimal remainingAmount, long expirySeconds);
 
-    List<ProductDTO> getOnSaleProducts();
+    Boolean deleteProductStockById(Long productId);
 
-    void setOnSaleProducts(List<ProductDTO> products);
+    BigDecimal deductProductStockById(Long productId, BigDecimal amount);
 
-    BigDecimal getRemainingAmountById(Long productId);
+    BigDecimal increaseProductStockById(Long productId, BigDecimal amount);
 
-    void setRemainingAmount(Long productId, BigDecimal remainingAmount, long expirySeconds);
-
-    Boolean deleteRemainingAmount(Long productId);
-
-    BigDecimal deductRemainingAmountById(Long productId, BigDecimal amount);
-
-    BigDecimal increaseRemainingAmountById(Long productId, BigDecimal amount);
-
-    Map<Long, BigDecimal> getAllProductsRemainingAmount();
+    Map<Long, BigDecimal> getAllProductStock();
 }

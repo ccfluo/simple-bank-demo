@@ -1,20 +1,17 @@
 package com.simple.bank.service.biz;
 
-import com.simple.bank.dto.ProductDTO;
 import com.simple.bank.utlility.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,38 +21,11 @@ public class ProductRedisServiceImpl implements ProductRedisService {
     private StringRedisTemplate stringRedisTemplate;
 
     private static final String PRODUCT_KEY_PREFIX = "product:";
-    private static final String ON_SALE_PRODUCTS_KEY = "product:onSale";
     private static final String PRODUCTS_STOCK_KEY_PREFIX = "product:stock:";
-
     private static final long EXPIRY_SECONDS = 300;
 
     @Override
-    public void set(ProductDTO productDTO) {
-        String redisKey = formatKey(productDTO.getProductId());
-        String jsonString = JsonUtils.toJsonString(productDTO);
-        stringRedisTemplate.opsForValue().set(redisKey, jsonString, EXPIRY_SECONDS, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public ProductDTO getById(Long productId) {
-        String redisKey = formatKey(productId);
-        return JsonUtils.parseObject(stringRedisTemplate.opsForValue().get(redisKey), ProductDTO.class);
-    }
-
-    @Override
-    public void delete(Long productId) {
-        String redisKey = formatKey(productId);
-        stringRedisTemplate.delete(redisKey);
-    }
-
-    @Override
-    public void setOnSaleProducts(List<ProductDTO> products) {
-        String jsonString = JsonUtils.toJsonString(products);
-        stringRedisTemplate.opsForValue().set(ON_SALE_PRODUCTS_KEY, jsonString, EXPIRY_SECONDS, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public BigDecimal getRemainingAmountById(Long productId) {
+    public BigDecimal getProductStockById(Long productId) {
         String redisKey = formatStockKey(productId);
         String redisValue = stringRedisTemplate.opsForValue().get(redisKey);
         if (redisValue == null) {
@@ -68,7 +38,7 @@ public class ProductRedisServiceImpl implements ProductRedisService {
     }
 
     @Override
-    public void setRemainingAmount(Long productId, BigDecimal remainingAmount, long expirySeconds) {
+    public void setProductStockById(Long productId, BigDecimal remainingAmount, long expirySeconds) {
         String redisKey = formatStockKey(productId);
         long value = yuanToCent(remainingAmount);
         String jsonString = JsonUtils.toJsonString(value);
@@ -76,66 +46,48 @@ public class ProductRedisServiceImpl implements ProductRedisService {
     }
 
     @Override
-    public Boolean deleteRemainingAmount(Long productId) {
+    public Boolean deleteProductStockById(Long productId) {
         String redisKey = formatStockKey(productId);
         return stringRedisTemplate.delete(redisKey);
     }
 
     @Override
-    public BigDecimal deductRemainingAmountById(Long productId, BigDecimal amount) {
+    public BigDecimal deductProductStockById(Long productId, BigDecimal amount) {
         String redisKey = formatStockKey(productId);
         long value = yuanToCent(amount);
-        Long remainingInCent = stringRedisTemplate.opsForValue().decrement(redisKey, value);
+        long remainingInCent = stringRedisTemplate.opsForValue().decrement(redisKey, value);
         return (centToYuan(remainingInCent));
     }
 
     @Override
-    public BigDecimal increaseRemainingAmountById(Long productId, BigDecimal amount) {
+    public BigDecimal increaseProductStockById(Long productId, BigDecimal amount) {
         String redisKey = formatStockKey(productId);
         long value = yuanToCent(amount);
-        Long remainingInCent = stringRedisTemplate.opsForValue().increment(redisKey, value);
+        long remainingInCent = stringRedisTemplate.opsForValue().increment(redisKey, value);
         return(centToYuan(remainingInCent));
     }
 
     @Override
-    public Map<Long, BigDecimal> getAllProductsRemainingAmount() {
-        // 匹配所有产品库存的key
+    public Map<Long, BigDecimal> getAllProductStock() {
         String pattern = PRODUCTS_STOCK_KEY_PREFIX + "*";
-        Set<String> keys = stringRedisTemplate.keys(pattern);
-
         Map<Long, BigDecimal> result = new HashMap<>();
-        if (keys == null || keys.isEmpty()) {
-            return result;
-        }
+        ScanOptions options = ScanOptions.scanOptions().match(pattern).count(1000).build();
 
-        for (String key : keys) {
-            // 从key中提取产品ID (格式: product:stock:123)
-            String productIdStr = key.replace(PRODUCTS_STOCK_KEY_PREFIX, "");
+        Cursor<String> cursor = stringRedisTemplate.scan(options);
+        while (cursor.hasNext()) {
+            String redisKey = cursor.next();
+            // get productId from redisKey (product:stock:123)
+            String productIdStr = redisKey.replace(PRODUCTS_STOCK_KEY_PREFIX, "");
             try {
                 Long productId = Long.parseLong(productIdStr);
-                BigDecimal remainingAmount = getRemainingAmountById(productId);
+                BigDecimal remainingAmount = this.getProductStockById(productId);
                 result.put(productId, remainingAmount);
             } catch (NumberFormatException e) {
-                log.warn("Invalid product stock key format: {}", key);
+                log.warn("[Redis Product Stock] Invalid product stock key format: {}", redisKey);
             }
         }
         return result;
     }
-
-    @Override
-//    @SuppressWarnings("unchecked")
-    public List<ProductDTO> getOnSaleProducts() {
-        String jsonString = stringRedisTemplate.opsForValue().get(ON_SALE_PRODUCTS_KEY);
-        if (jsonString == null) {
-            return null;
-        }
-
-        List<Object> objects = JsonUtils.parseArray(jsonString, Object.class);
-        return objects.stream()
-                .map(obj -> JsonUtils.parseObject(JsonUtils.toJsonString(obj), ProductDTO.class))
-                .collect(Collectors.toList());
-    }
-
     private static String formatKey(Long productId) {
         return String.format("%s%d", PRODUCT_KEY_PREFIX, productId);
     }

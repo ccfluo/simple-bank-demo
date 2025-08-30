@@ -6,8 +6,6 @@ import com.simple.bank.dto.Response;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @JsonPropertyOrder({"response", "products"})
 @Setter @Getter
 public class ProductResponse {

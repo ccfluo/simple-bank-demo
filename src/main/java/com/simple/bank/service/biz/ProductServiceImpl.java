@@ -66,15 +66,13 @@ public class ProductServiceImpl implements ProductService {
 
         // if it's a hot product, update remaining amount from redis
         if (productDTO.getIsHot() != null && productDTO.getIsHot() > 0) {
-            String redisKey = "product:stock:" + productId;
-//            Long stockInCent = redisService.getLong(redisKey);
-            BigDecimal cachedRemainingAmount = productRedisService.getRemainingAmountById(productId);
+            BigDecimal cachedRemainingAmount = productRedisService.getProductStockById(productId);
             if (cachedRemainingAmount == null) {
                 // Redis缓存未命中，触发实时预热（避免缓存穿透）
                 log.warn("Hot product Redis not hit，trigger warm up now，productId: {}", productId);
                 productStockWarmupService.warmupProductStock(productId);
                 // inquire redis again in case other txn has updated remaining amount in redis after warmup above
-                cachedRemainingAmount = productRedisService.getRemainingAmountById(productId);
+                cachedRemainingAmount = productRedisService.getProductStockById(productId);
             }
 
             productDTO.setRemainingAmount(cachedRemainingAmount);

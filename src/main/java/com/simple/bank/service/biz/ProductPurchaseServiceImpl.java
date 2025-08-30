@@ -151,11 +151,11 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         }
 
         //hot product remaining amount deduct TODO: check fallback reasonable?
-        BigDecimal cachedRemainingAmount = productRedisService.deductRemainingAmountById(productId, amount);
+        BigDecimal cachedRemainingAmount = productRedisService.deductProductStockById(productId, amount);
         if (cachedRemainingAmount == null) {
             if (productStockWarmupService.warmupProductStock(productId)) {
                 // deduct amount again
-                cachedRemainingAmount = productRedisService.deductRemainingAmountById(productId, amount);
+                cachedRemainingAmount = productRedisService.deductProductStockById(productId, amount);
                 if (cachedRemainingAmount == null) {
                     throw new BusinessException("PRODUCT_EXCEPTION", "Hot product exception, pls check backend");
                 }
@@ -167,7 +167,7 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
 
         if (cachedRemainingAmount.compareTo(BigDecimal.ZERO) < 0) {
             // deduct amount failed, rollback Redis
-            productRedisService.increaseRemainingAmountById(productId, amount);
+            productRedisService.increaseProductStockById(productId, amount);
             log.warn("Insufficient remaining subscription quota for hot product: {}, required amount: {}", productId, amount);
             throw new BusinessException("PRODUCT_INSUFFICIENT", "Insufficient remaining subscription quota");
         }

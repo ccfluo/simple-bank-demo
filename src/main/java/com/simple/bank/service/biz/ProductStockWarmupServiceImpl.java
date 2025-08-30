@@ -6,7 +6,7 @@ import com.simple.bank.mapper.ProductMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.math.BigDecimal;
+
 import java.util.List;
 
 @Slf4j
@@ -42,7 +42,7 @@ public class ProductStockWarmupServiceImpl implements ProductStockWarmupService 
 //        long stockInCent = convertYuanToCent(product.getRemainingAmount());
 
         // 3. 存入Redis（设置过期时间：24小时，避免缓存永久有效）
-        productRedisService.setRemainingAmount(productId,
+        productRedisService.setProductStockById(productId,
                 productEntity.getRemainingAmount(), expirySeconds);
         log.info("Product warm up into redis，productId: {}, remaining amount: {}",
                 productId, productEntity.getRemainingAmount());
@@ -64,8 +64,7 @@ public class ProductStockWarmupServiceImpl implements ProductStockWarmupService 
         int warmupProductCount = 0;
         for (ProductEntity product : hotProducts) {
             try {
-                long stockInCent = convertYuanToCent(product.getRemainingAmount());
-                productRedisService.setRemainingAmount(product.getProductId(),
+                productRedisService.setProductStockById(product.getProductId(),
                         product.getRemainingAmount(), expirySeconds);
                 log.info("[Product Warmup] Batch warm up for productId: {}, remaining amount: {}",
                         product.getProductId(), product.getRemainingAmount());
@@ -84,27 +83,12 @@ public class ProductStockWarmupServiceImpl implements ProductStockWarmupService 
     // clean up warmup product
     @Override
     public void clearProductStockCache(Long productId) {
-        boolean deleteSuccess = productRedisService.deleteRemainingAmount(productId);
+        boolean deleteSuccess = productRedisService.deleteProductStockById(productId);
         if (deleteSuccess) {
             log.info("Cleaned up product stock for productId: {}", productId);
         } else {
             log.warn("Product stock not in redis for productId: {}", productId);
         }
-    }
-
-    /**
-     * 元转分（避免BigDecimal浮点精度问题）
-     */
-    private long convertYuanToCent(BigDecimal amountYuan) {
-        return amountYuan.multiply(new BigDecimal("100")).longValue();
-    }
-
-    /**
-     * 分转元（从Redis读取后转换回业务金额）
-     * （供外部调用，如ProductService查询Redis库存时使用）
-     */
-    public BigDecimal convertCentToYuan(long amountCent) {
-        return new BigDecimal(amountCent).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
     }
 
 }

@@ -42,8 +42,8 @@ public class RedissionLock {
 
     public <T> T lockTwoAccounts(Long accountId1, Long accountId2, Long leaseTimeMillis, Supplier<T> supplier) throws BusinessException {
         // 确定加锁顺序：先小后大
-        Long lockFirst = Math.min(accountId1, accountId2);
-        Long lockSecond = Math.max(accountId1, accountId2);
+        long lockFirst = Math.min(accountId1, accountId2);
+        long lockSecond = Math.max(accountId1, accountId2);
 
         RLock lock1 = redissonClient.getLock("account:lock:" + lockFirst);
         RLock lock2 = redissonClient.getLock("account:lock:" + lockSecond);
