@@ -23,14 +23,21 @@ public class SimpleBankDemoApplication {
 //        System.out.println(event.getApplicationContext().getEnvironment().getProperty("simple.bank") + "------");
 //    }
 
-    @Bean
-    public CommandLineRunner warmupHotProductStock(ProductStockWarmupService warmupService) {
-        return args -> {
-            log.info("[Application activated] starting to warmup hot product...");
-            boolean result = warmupService.batchWarmupHotProductStock();
-            log.info("[Application activated] Product warmup: {}", result ? "successfully" : "failed" );
-        };
-    }
+// remove warmupHotProductStock :
+//    if application restarted during product sale phase, warm up will clean up all data in redis
+//       which will cause product stock in redis lost
+//    @Bean
+//    public CommandLineRunner warmupHotProductStock(ProductStockWarmupService warmupService) {
+//        return args -> {
+//            log.info("[Application activated] starting to warmup hot product...");
+//            boolean result = warmupService.batchWarmupHotProductStock();
+//            if (result) {
+//                log.info("[Application activated] Product warmup successfully");
+//            }else {
+//                log.error("[Application activated] Product warmup failed");
+//            }
+//        };
+//    }
 
 }
 

@@ -15,6 +15,6 @@ public interface ProductService {
     // inquire product given productId
     ProductDTO getProductById(Long productId) throws BusinessException;
 
-    // batch update remaining amount
-    void batchUpdateRemainingAmount(Map<Long, BigDecimal> productRemainingAmounts);
+    // batch sync update remaining amount to DB
+    void batchUpdateProductStock(Map<Long, BigDecimal> productRemainingAmounts);
 }

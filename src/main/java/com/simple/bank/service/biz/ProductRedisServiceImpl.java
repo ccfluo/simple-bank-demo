@@ -22,7 +22,7 @@ public class ProductRedisServiceImpl implements ProductRedisService {
 
     private static final String PRODUCT_KEY_PREFIX = "product:";
     private static final String PRODUCTS_STOCK_KEY_PREFIX = "product:stock:";
-    private static final long EXPIRY_SECONDS = 300;
+    private static final long EXPIRY_SECONDS = 86400; //86400s = 24 hours
 
     @Override
     public BigDecimal getProductStockById(Long productId) {
@@ -31,18 +31,18 @@ public class ProductRedisServiceImpl implements ProductRedisService {
         if (redisValue == null) {
             //in case not found in redis
             // JsonUtils.parseObject will return null and assign to long ->  NullPointerException
-            return BigDecimal.ZERO;
+            return null;
         }
         long amountInCent = JsonUtils.parseObject(stringRedisTemplate.opsForValue().get(redisKey), long.class);
         return (centToYuan(amountInCent));
     }
 
     @Override
-    public void setProductStockById(Long productId, BigDecimal remainingAmount, long expirySeconds) {
+    public void setProductStockById(Long productId, BigDecimal remainingAmount) {
         String redisKey = formatStockKey(productId);
         long value = yuanToCent(remainingAmount);
         String jsonString = JsonUtils.toJsonString(value);
-        stringRedisTemplate.opsForValue().set(redisKey, jsonString, expirySeconds, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(redisKey, jsonString, EXPIRY_SECONDS, TimeUnit.SECONDS);
     }
 
     @Override

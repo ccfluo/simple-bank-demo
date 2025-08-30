@@ -5,6 +5,7 @@ import com.simple.bank.api.response.*;
 import com.simple.bank.dto.*;
 import com.simple.bank.service.biz.ProductService;
 import com.simple.bank.service.biz.ProductPurchaseService;
+import com.simple.bank.service.biz.ProductStockWarmupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,12 +22,21 @@ public class ProductController {
     private ProductService productService;
     @Autowired
     private ProductPurchaseService productPurchaseService;
+    @Autowired
+    private ProductStockWarmupService productStockWarmupService;
 
     // inquire on-sale product
     @GetMapping("/on-sale")
     public ResponseEntity<ListOfProductResponse> getOnSaleProducts() {
         List<ProductMiniDTO> products = productService.getOnSaleProducts();
         return ResponseEntity.ok(new ListOfProductResponse(products));
+    }
+
+    // warm up a product
+    @GetMapping("/warmup/{productId}")
+    public ResponseEntity<Response> warmupHotProductById(@PathVariable Long productId) {
+        boolean result = productStockWarmupService.warmupProductStock(productId);
+        return ResponseEntity.ok(new Response("Product warm up successfully."));
     }
 
     // inquire a product

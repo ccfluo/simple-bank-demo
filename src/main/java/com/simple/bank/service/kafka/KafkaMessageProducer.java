@@ -64,15 +64,15 @@ public class KafkaMessageProducer {
         CompletableFuture<SendResult<Object, Object>> completableFuture;
 
         completableFuture = kafkaTemplate.send(kafkaPurchaseMessage.TOPIC, kafkaPurchaseMessage);
-        log.debug("[Purchase Message][transfer id：[{}]]", kafkaPurchaseMessage.getPurchaseId());
+        log.debug("[Purchase Message][purchase id：[{}]]", kafkaPurchaseMessage.getPurchaseId());
 
         //CompletableFuture:
         //   succ: return result(1st parm); fail: return throwable (2nd parm)
         completableFuture.whenComplete((result, throwable) -> {
             if (throwable != null) {
-                log.error("[Purchase Message][transfer id：[{}] send abnormal]", kafkaPurchaseMessage.getPurchaseId(), throwable);
+                log.error("[Purchase Message][purchase id：[{}] send abnormal]", kafkaPurchaseMessage.getPurchaseId(), throwable);
             } else {
-                log.info("[Purchase Message][transfer id：[{}] send successfully, result ：[{}]]", kafkaPurchaseMessage.getPurchaseId(), result);
+                log.info("[Purchase Message][purchase id：[{}] send successfully, result ：[{}]]", kafkaPurchaseMessage.getPurchaseId(), result);
             }
         });
     }

@@ -79,7 +79,7 @@ public class KafkaMessageEmailConsumer {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         String formattedTime = kafkaPurchaseMessage.getPurchaseTime().format(formatter);
 
-        String fromContent = String.format("Your account %s has purchase product %s, amount：%s，balance：%s",
+        String fromContent = String.format("Your account %s has purchased product %s, amount：%s，balance：%s",
                 formattedTime,
                 kafkaPurchaseMessage.getProductId(),
                 formattedPurchaseAmount,

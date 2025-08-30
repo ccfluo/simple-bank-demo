@@ -24,6 +24,10 @@ public interface ProductMapper {
     @Select("SELECT * FROM wealth_product WHERE product_id = #{productId}")
     ProductEntity getProductById(Long productId);
 
+    // inquire product by id
+    @Select("SELECT * FROM wealth_product WHERE product_id = #{productId} FOR UPDATE")
+    ProductEntity getProductByIdForUpdate(Long productId);
+
     // deduct product remaining amount
     @Update("UPDATE wealth_product " +
             "SET remaining_amount = remaining_amount - #{amount} " +

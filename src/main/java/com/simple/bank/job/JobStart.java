@@ -10,6 +10,6 @@ public class JobStart extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        log.info("===== Start today's job execution =====");
+        log.info("[Job scheduler] Starting today's job execution...");
     }
 }

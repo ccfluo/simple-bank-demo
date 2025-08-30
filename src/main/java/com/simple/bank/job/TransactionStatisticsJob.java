@@ -26,9 +26,9 @@ public class TransactionStatisticsJob extends QuartzJobBean {
     TransactionService transactionService;
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        log.info("===== Start Transaction Statistics Job =====");
+        log.info("[Job scheduler] Starting Transaction Statistics Job...");
         generateDailyTransactionReport();
-        log.info("===== End Transaction Statistics Job =====");
+        log.info("[Job scheduler] Transaction Statistics Job completed.");
     }
 
     private void generateDailyTransactionReport() throws JobExecutionException {

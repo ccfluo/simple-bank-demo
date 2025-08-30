@@ -83,12 +83,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void batchUpdateRemainingAmount(Map<Long, BigDecimal> productRemainingAmounts) {
+    public void batchUpdateProductStock(Map<Long, BigDecimal> productRemainingAmounts) {
         if (productRemainingAmounts.isEmpty()) {
             return;
         }
 
-        // 转换为需要更新的实体列表
         List<ProductEntity> products = productRemainingAmounts.entrySet().stream()
                 .map(entry -> {
                     ProductEntity product = new ProductEntity();
@@ -98,12 +97,11 @@ public class ProductServiceImpl implements ProductService {
                 })
                 .collect(Collectors.toList());
 
-        // 调用Mapper进行批量更新
         int updatedCount = productMapper.batchUpdateRemainingAmount(products);
         if (updatedCount > 0) {
-            log.info("Batch sync product remaining amount to DB，updated count：{}", updatedCount);
+            log.info("Batch sync product stock to DB，updated count：{}", updatedCount);
         } else {
-            log.warn("Product not found during batch sync product remaining amount to DB.");
+            log.warn("Product not found during batch sync product stock to DB.");
         }
     }
 

@@ -11,11 +11,11 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import java.math.BigDecimal;
 import java.util.Map;
 
-// same as RedisToDbSyncDailyJob.
+// same as RedisToDbSyncJob.
 // RedisToDbSyncDailyJob: schedule after jobStart @2am daily
 // RedisToDbSyncJob: scheduled every 5 minutes from 8am ~ 5pm
 @Slf4j
-public class RedisToDbSyncJob extends QuartzJobBean {
+public class RedisToDbSyncDailyJob extends QuartzJobBean {
 
     @Autowired
     private ProductRedisService productRedisService;

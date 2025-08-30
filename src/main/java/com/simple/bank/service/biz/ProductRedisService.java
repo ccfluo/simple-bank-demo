@@ -7,7 +7,7 @@ public interface ProductRedisService {
 
     BigDecimal getProductStockById(Long productId);
 
-    void setProductStockById(Long productId, BigDecimal remainingAmount, long expirySeconds);
+    void setProductStockById(Long productId, BigDecimal remainingAmount);
 
     Boolean deleteProductStockById(Long productId);
 

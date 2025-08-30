@@ -1,9 +1,6 @@
 package com.simple.bank.config;
 
-import com.simple.bank.job.JobEnd;
-import com.simple.bank.job.JobStart;
-import com.simple.bank.job.RedisToDbSyncJob;
-import com.simple.bank.job.TransactionStatisticsJob;
+import com.simple.bank.job.*;
 import org.quartz.*;
 import org.quartz.listeners.JobChainingJobListener;
 import org.springframework.boot.autoconfigure.quartz.SchedulerFactoryBeanCustomizer;
@@ -28,7 +25,7 @@ public class ScheduleConfiguration {
         @Bean
         public Trigger jobStartTrigger() {
             // 基于 Quartz Cron 表达式的调度计划的构造器
-            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.dailyAtHourAndMinute(2, 0);
+            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.dailyAtHourAndMinute(19, 29);
             // Trigger 构造器
             return TriggerBuilder.newTrigger()
                     .forJob(jobStart()) // 对应 Job 为 transactionStatisticsJob
@@ -63,29 +60,15 @@ public class ScheduleConfiguration {
     }
 
     @Configuration
-    public static class JobChainConfiguration {
-        /**
-         * Job dependency：TransactionStatisticsJob  → JobEnd
-         */
-        @Bean
-        public JobListener jobChainingListener(
-                JobDetail jobStart,
-                JobDetail transactionStatisticsJob,
-                JobDetail jobEnd) {
-            JobChainingJobListener listener = new JobChainingJobListener("chainListener");
-            listener.addJobChainLink(jobStart.getKey(), transactionStatisticsJob.getKey());
-            listener.addJobChainLink(transactionStatisticsJob.getKey(), jobEnd.getKey());
-            return listener;
-        }
+    public static class ProductStockBatchWarmupJobConfiguration {
 
-        /**
-         * listener register into Scheduler
-         */
         @Bean
-        public SchedulerFactoryBeanCustomizer schedulerCustomizer(JobListener jobChainingListener) {
-            return schedulerFactoryBean -> schedulerFactoryBean.setGlobalJobListeners(jobChainingListener);
+        public JobDetail productStockBatchWarmupJob() {
+            return JobBuilder.newJob(ProductStockBatchWarmupJob.class)
+                    .withIdentity("productStockBatchWarmupJob") // 名字为 productStockBatchWarmupJob
+                    .storeDurably() // 没有 Trigger 关联的时候任务是否被保留。因为创建 JobDetail 时，还没 Trigger 指向它，所以需要设置为 true ，表示保留。
+                    .build();
         }
-
     }
 
     @Configuration
@@ -101,8 +84,9 @@ public class ScheduleConfiguration {
 
         @Bean
         public Trigger redisToKafkaSyncJobTrigger() {
-            // Cron表达式：每5分钟执行一次（秒 分 时 日 月 周 年）
-            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule("0 0/5 * * * ?");
+            // CronExpression：execute every 5 minutes from 8am ~ 5pm
+            //                (sec min hour day mon week year)
+            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule("0 0/5 8-23 * * ?");
 
             return TriggerBuilder.newTrigger()
                     .forJob(redisToDbSyncJob())
@@ -110,5 +94,53 @@ public class ScheduleConfiguration {
                     .withSchedule(scheduleBuilder)
                     .build();
         }
+    }
+
+    @Configuration
+    public static class RedisToKafkaSyncDailyJobConfiguration {
+
+        @Bean
+        public JobDetail redisToDbSyncDailyJob() {
+            return JobBuilder.newJob(RedisToDbSyncDailyJob.class)
+                    .withIdentity("redisToDbSyncDailyJob")
+                    .storeDurably()
+                    .build();
+        }
+
+    }
+
+    // Job Chain Configuration
+    @Configuration
+    public static class JobChainConfiguration {
+        /**
+         * Job dependency：JobStart
+         *             →   TransactionStatisticsJob
+         *                 RedisToDbSyncJob →  ProductStockBatchWarmupJob
+         *             →   JobEnd
+         */
+        @Bean
+        public JobListener jobChainingListener(
+                JobDetail jobStart,
+                JobDetail transactionStatisticsJob,
+                JobDetail redisToDbSyncDailyJob,
+                JobDetail productStockBatchWarmupJob,
+                JobDetail jobEnd) {
+            JobChainingJobListener listener = new JobChainingJobListener("chainListener");
+            listener.addJobChainLink(jobStart.getKey(), transactionStatisticsJob.getKey());
+//            listener.addJobChainLink(transactionStatisticsJob.getKey(), jobEnd.getKey()); //TODO: to handle jobend only execute once
+            listener.addJobChainLink(jobStart.getKey(), redisToDbSyncDailyJob.getKey());
+            listener.addJobChainLink(redisToDbSyncDailyJob.getKey(), productStockBatchWarmupJob.getKey());
+            listener.addJobChainLink(productStockBatchWarmupJob.getKey(), jobEnd.getKey());
+            return listener;
+        }
+
+        /**
+         * listener register into Scheduler
+         */
+        @Bean
+        public SchedulerFactoryBeanCustomizer schedulerCustomizer(JobListener jobChainingListener) {
+            return schedulerFactoryBean -> schedulerFactoryBean.setGlobalJobListeners(jobChainingListener);
+        }
+
     }
 }

@@ -11,7 +11,7 @@ This is the demo banking backend application, built using Spring Boot. It provid
 | 0.3     | 2025/08/21 | Enhance Global Exceptional handler                                                                                                                                                     |
 | 0.4     | 2025/08/24 | **New function:** <br> - generate transaction summary report at 2am daily                                                                                                              |
 | 0.5     | 2025/08/28 | **New function:** <br> - Wealth product purchase <br> - Money Transfer                                                                                                                 |
-| 0.6     | 2025/08/30 | **New function:** <br> - Preload hot products' information to redis <br> **Function Enhancement:** <br> - Enable support for high concurrency in hot wealth product purchase scenarios | 
+| 0.6     | 2025/08/30 | **New function:** <br> - Warm up hot products' information to redis <br> **Function Enhancement:** <br> - Enable support for high concurrency in hot wealth product purchase scenarios | 
 
 
 ## Features
@@ -94,5 +94,6 @@ The application will start on `http://localhost:8886`.
 The application uses global exception handling to handle specific scenarios
 
 ## Regular Jobs
-- **Daily transaction report**: generated at 2am daily
-- **Hot Product quota synchronization**: from redis to DB every 5 minutes
+- **Daily transaction report**: generated @2am daily
+- **Hot Product quota synchronization**: sync from redis to DB every 5 minutes from 8am ~ 5pm + @2am daily
+- **Hot Product batch warm up**: load hot product quota into redis after quota synchronization @2am daily

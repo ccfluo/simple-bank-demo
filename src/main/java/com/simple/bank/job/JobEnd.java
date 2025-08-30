@@ -10,6 +10,6 @@ public class JobEnd extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        log.info("===== All jobs completed =====");
+        log.info("[Job scheduler] All jobs completed.");
     }
 }
