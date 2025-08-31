@@ -1,4 +1,4 @@
-package com.simple.bank.service.biz;
+package com.simple.bank.service.redis;
 
 import com.simple.bank.utlility.JsonUtils;
 import lombok.extern.slf4j.Slf4j;

@@ -3,6 +3,7 @@ package com.simple.bank.service.biz;
 import com.simple.bank.entity.ProductEntity;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.ProductMapper;
+import com.simple.bank.service.redis.ProductRedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

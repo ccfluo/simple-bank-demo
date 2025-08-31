@@ -5,7 +5,7 @@ import com.simple.bank.dto.ProductDTO;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.ProductPurchaseMapper;
 
-import com.simple.bank.service.biz.ProductRedisService;
+import com.simple.bank.service.redis.ProductRedisService;
 import com.simple.bank.service.biz.ProductStockWarmupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

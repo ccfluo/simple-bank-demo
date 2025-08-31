@@ -7,6 +7,7 @@ import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.entity.CustomerEntity;
 import com.simple.bank.mapper.CustomerMapper;
 import com.simple.bank.exception.BusinessException;
+import com.simple.bank.service.redis.CustomerRedisService;
 import com.simple.bank.validator.CustomerAddValidator;
 import com.simple.bank.validator.CustomerDeleteValidator;
 import com.simple.bank.validator.CustomerUpdateValidator;
@@ -37,7 +38,8 @@ public class CustomerMaintServiceImpl implements CustomerMaintService {
     private CustomerInquireService customerInquireService;
     @Autowired
     private AuditLogService auditLogService;
-    @Autowired CustomerRedisService customerRedisService;
+    @Autowired
+    CustomerRedisService customerRedisService;
 
     @Override
     @Transactional

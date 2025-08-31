@@ -25,12 +25,12 @@ public class ScheduleConfiguration {
         @Bean
         public Trigger jobStartTrigger() {
             // 基于 Quartz Cron 表达式的调度计划的构造器
-            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.dailyAtHourAndMinute(19, 29);
+            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.dailyAtHourAndMinute(2, 0);
             // Trigger 构造器
             return TriggerBuilder.newTrigger()
-                    .forJob(jobStart()) // 对应 Job 为 transactionStatisticsJob
-                    .withIdentity("jobStartTrigger") // 名字为 jobStartTrigger
-                    .withSchedule(scheduleBuilder) // 对应 Schedule 为 scheduleBuilder
+                    .forJob(jobStart())
+                    .withIdentity("jobStartTrigger")
+                    .withSchedule(scheduleBuilder)
                     .build();
         }
     }

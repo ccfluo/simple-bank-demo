@@ -1,4 +1,4 @@
-package com.simple.bank.service.biz;
+package com.simple.bank.service.redis;
 
 import java.math.BigDecimal;
 import java.util.Map;

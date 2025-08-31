@@ -18,6 +18,8 @@ public class RedissionLock {
 
     public<T> T lock(String lockKey, Long leaseTimeMillis, Supplier<T> action) {
 //        String lockKey = formatKey(id);
+        // Use Reentrant Lock
+        // other redission lock mode: fair lock - FIFO; ReadWrite lock
         RLock lock = redissonClient.getLock(lockKey); //get a lock object instance by name
         boolean locked = false;
         try {
@@ -27,7 +29,7 @@ public class RedissionLock {
                     throw new BusinessException("SYSTEM_BUSY", "System busy, try again later");
                 }
             } else {
-                lock.lock();  //启用看门狗模式，阻塞式等待
+                lock.lock();  //enable watchdog mode，阻塞式等待
             }
             return action.get();
         }catch (InterruptedException e) {

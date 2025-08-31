@@ -9,6 +9,7 @@ import com.simple.bank.entity.ProductPurchaseExpand;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.ProductMapper;
 import com.simple.bank.mapper.ProductPurchaseMapper;
+import com.simple.bank.service.redis.ProductRedisService;
 import com.simple.bank.service.redis.RedissionLock;
 import com.simple.bank.validator.ProductPurchaseValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -73,9 +74,6 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
         // 4. deduct amount from account - select for update mode
         AccountTransactionDTO accountTransactionDTO = debitAccountBalance(request);
 
-        // 4. deduct product remaining amount - sql will check if still have enough remaining amount again.
-        boolean result = deductProductStock(request.getProductId(), request.getPurchaseAmount(), product.getIsHot());
-
         // 5. log purchase record
         ProductPurchaseEntity purchaseEntity = createPurchaseRecord(request, product, accountDTO.getCustomerId());
         try {
@@ -84,7 +82,10 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
             throw new BusinessException("DUPLICATE_KEY", "Duplicate Purchase");
         }
 
-        // 6. send purchase notification
+        // 6. deduct product remaining amount - will check if still have enough remaining amount again.
+        boolean result = deductProductStock(request.getProductId(), request.getPurchaseAmount(), product.getIsHot());
+
+        // 7. send purchase notification
         CustomerDTO customerDTO = customerInquireService.getCustomerById(accountDTO.getCustomerId());
         messageNotification.sendPurchaseNotification(purchaseEntity, accountTransactionDTO.getAccountBalance(), customerDTO.getMobile(), customerDTO.getEmail());
 
@@ -141,39 +142,52 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
 
     private boolean deductProductStock(Long productId, BigDecimal amount, Integer isHot) {
 
-        //non-hot product remaining amount deduct
-        if (isHot < 1) {
-            int productResult = productMapper.deductRemainingAmount(productId, amount);
-            if (productResult < 1) {
-                throw new BusinessException("PRODUCT_OUT_OF_STOCK", "Insufficient remaining subscription quota");
+        // for hot product
+        if (isHot > 0) {
+            boolean redisDeductSuccess = deductProductStockFromRedis(productId, amount);
+            if (redisDeductSuccess) {
+                return true;
             }
-            return true;
+            log.warn("[Product Purchase] Hot product [{}] Redis deduction failed, falling back to DB", productId);
+        }
+        // for fallback case or non-hot product
+        return deductProductStockFromDB(productId, amount);
+    }
+
+    private boolean deductProductStockFromRedis(Long productId, BigDecimal amount) {
+        // 1st try ： deduct from redis
+        BigDecimal remainingAmount = productRedisService.deductProductStockById(productId, amount);
+
+        // if deduct from Redis failed, warm up product and deduct again
+        if (remainingAmount == null) {
+            if (!productStockWarmupService.warmupProductStock(productId)) {
+                return false; // warm up failed，return false to fall back to DB
+            }
+            // warm up succ, deduct from redis again
+            remainingAmount = productRedisService.deductProductStockById(productId, amount);
         }
 
-        //hot product remaining amount deduct TODO: check fallback reasonable?
-        BigDecimal cachedRemainingAmount = productRedisService.deductProductStockById(productId, amount);
-        if (cachedRemainingAmount == null) {
-            if (productStockWarmupService.warmupProductStock(productId)) {
-                // deduct amount again
-                cachedRemainingAmount = productRedisService.deductProductStockById(productId, amount);
-                if (cachedRemainingAmount == null) {
-                    throw new BusinessException("PRODUCT_EXCEPTION", "Hot product exception, pls check backend");
-                }
-            } else {
-                throw new BusinessException("PRODUCT_EXCEPTION", "Hot product exception, pls check backend");
-            }
-
+        if (remainingAmount == null) {
+            return false; // if still deduct failed, return false to fall back to DB
         }
 
-        if (cachedRemainingAmount.compareTo(BigDecimal.ZERO) < 0) {
-            // deduct amount failed, rollback Redis
+        // check if still have quota
+        if (remainingAmount.compareTo(BigDecimal.ZERO) < 0) {
+            // roll back if don't have enough quota
             productRedisService.increaseProductStockById(productId, amount);
-            log.warn("[Product Purchase] Insufficient remaining subscription quota for hot product: {}, required amount: {}", productId, amount);
-            throw new BusinessException("PRODUCT_INSUFFICIENT", "Insufficient remaining subscription quota");
+            log.warn("[Product Purchase] Product [{}] insufficient remaining subscription quota", productId);
+            throw new BusinessException("PRODUCT_OUT_OF_STOCK", "Insufficient remaining subscription quota");
         }
 
-        // No need redis sync to DB ==> schedule regularly sync from redis to DB
+        return true;
+    }
 
+    private boolean deductProductStockFromDB(Long productId, BigDecimal amount) {
+        int updateCount = productMapper.deductRemainingAmount(productId, amount);
+        if (updateCount < 1) {
+            log.warn("[Product Purchase] Product [{}] insufficient stock in DB", productId);
+            throw new BusinessException("PRODUCT_OUT_OF_STOCK", "Insufficient remaining subscription quota");
+        }
         return true;
     }
 }

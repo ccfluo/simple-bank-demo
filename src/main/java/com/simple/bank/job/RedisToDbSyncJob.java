@@ -1,11 +1,12 @@
 package com.simple.bank.job;
 
-import com.simple.bank.service.biz.ProductRedisService;
+import com.simple.bank.service.redis.ProductRedisService;
 import com.simple.bank.service.biz.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ public class RedisToDbSyncJob extends QuartzJobBean {
     private ProductService productService;
 
     @Override
-    protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+    protected void executeInternal(@NonNull JobExecutionContext context) throws JobExecutionException {
         log.info("[Job scheduler] Starting product stock synchronization from Redis to DB...");
         try {
             // 1. get product stock from redis

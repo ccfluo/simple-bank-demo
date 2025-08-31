@@ -5,6 +5,7 @@ import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.entity.CustomerEntity;
 import com.simple.bank.exception.BusinessException;
 import com.simple.bank.mapper.CustomerMapper;
+import com.simple.bank.service.redis.CustomerRedisServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
