@@ -11,7 +11,8 @@ This is the demo banking backend application, built using Spring Boot. It provid
 | 0.3     | 2025/08/21 | Enhance Global Exceptional handler                                                                                                                                                     |
 | 0.4     | 2025/08/24 | **New function:** <br> - generate transaction summary report at 2am daily                                                                                                              |
 | 0.5     | 2025/08/28 | **New function:** <br> - Wealth product purchase <br> - Money Transfer                                                                                                                 |
-| 0.6     | 2025/08/30 | **New function:** <br> - Warm up hot products' information to redis <br> **Function Enhancement:** <br> - Enable support for high concurrency in hot wealth product purchase scenarios | 
+| 0.6     | 2025/08/30 | **New function:** <br> - Warm up hot products' information to redis <br> **Function Enhancement:** <br> - Enable support for high concurrency in hot wealth product purchase scenarios |
+| 0.7     | 2025/09/05 | **Function Enhancement:** <br> - Support batch or real time SMS/Email notification                                                                                               |
 
 
 ## Features

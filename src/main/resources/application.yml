@@ -28,6 +28,9 @@ spring:
       auto-offset-reset: earliest # 设置消费者分组最初的消费进度为 earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      fetch-max-wait: 10000 # poll 一次拉取的阻塞的最大时长，单位：毫秒。这里指的是阻塞拉取需要满足至少 fetch-min-size 大小的消息
+      fetch-min-size: 1000 # poll 一次消息拉取的最小数据量，单位：字节
+      max-poll-records: 100 # poll 一次消息拉取的最大数量
       properties:
         spring:
           json:
@@ -36,10 +39,11 @@ spring:
     # Kafka Consumer Listener 监听器配置
     listener:
       missing-topics-fatal: false # 消费监听接口监听的主题不存在时，默认会报错。所以通过设置为 false ，解决报错
+      type: SINGLE # 监听器类型，默认为 SINGLE :只监听单条消息。BATCH :监听多条消息，批量消费
     properties:
       max.block.ms: 25000   #总阻塞超时时间（建议小于等于25秒）
-      request.timeout.ms: 10000  # 单次请求超时（默认30秒，改为10秒）
-      metadata.fetch.timeout.ms: 5000  # 元数据获取超时（默认60秒，改为5秒）
+      request.timeout.ms: 15000  # 单次请求超时（默认30秒，改为15秒）
+      metadata.fetch.timeout.ms: 15000  # 元数据获取超时（默认60秒，改为15秒）
       metadata.max.retries: 3  # 重试次数
       socket.connection.setup.timeout.ms: 5000  # 连接建立超时（默认10秒，改为5秒）
       socket.connection.setup.timeout.max.ms: 5000  # 连接建立最大超时（避免累积重试）

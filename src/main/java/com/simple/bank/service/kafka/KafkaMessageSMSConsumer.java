@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -20,70 +21,79 @@ public class KafkaMessageSMSConsumer {
 
     @KafkaListener(topics = KafkaTransactionMessage.TOPIC,
             groupId = "consumer-group-sms-transaction" + KafkaTransactionMessage.TOPIC)
-    public void onMessage(KafkaTransactionMessage kafkaTransactionMessage) {
-        log.debug("[onMessageSMS][thread:{} message：{}]", Thread.currentThread().getId(), kafkaTransactionMessage);
-        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
-        String formattedAmount = decimalFormat.format(kafkaTransactionMessage.getAmount());
-        String formattedBalance = decimalFormat.format(kafkaTransactionMessage.getBalanceAfter());
+    public void onMessage(List<KafkaTransactionMessage> kafkaTransactionMessages) {
+        for(KafkaTransactionMessage kafkaTransactionMessage: kafkaTransactionMessages ){
+            log.debug("[onMessageSMS][thread:{} message：{}]", Thread.currentThread().getId(), kafkaTransactionMessage);
+            DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+            String formattedAmount = decimalFormat.format(kafkaTransactionMessage.getAmount());
+            String formattedBalance = decimalFormat.format(kafkaTransactionMessage.getBalanceAfter());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        String formattedTime = kafkaTransactionMessage.getTransactionTime().format(formatter);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            String formattedTime = kafkaTransactionMessage.getTransactionTime().format(formatter);
 
-        String content = String.format("Your account %s has %s transaction，amount：%s，balance：%s",
-                formattedTime,
-                "CREDIT".equals(kafkaTransactionMessage.getTransactionType()) ? "deposit" : "withdrawal",
-                formattedAmount,
-                formattedBalance);
+            String content = String.format("Your account %s has %s transaction，amount：%s，balance：%s",
+                    formattedTime,
+                    "CREDIT".equals(kafkaTransactionMessage.getTransactionType()) ? "deposit" : "withdrawal",
+                    formattedAmount,
+                    formattedBalance);
 
-        smsService.sendSms(kafkaTransactionMessage.getMobile(), content);
+            smsService.sendSms(kafkaTransactionMessage.getMobile(), content);
+        }
+
     }
 
     @KafkaListener(topics = KafkaTransferMessage.TOPIC,
             groupId = "consumer-group-sms-transfer" + KafkaTransferMessage.TOPIC)
-    public void onTransferMessage(KafkaTransferMessage kafkaTransferMessage) {
-        log.debug("[onMessageSMS][thread:{} message：{}]", Thread.currentThread().getId(), kafkaTransferMessage);
+    public void onTransferMessage(List<KafkaTransferMessage> kafkaTransferMessages) {
+        for(KafkaTransferMessage kafkaTransferMessage: kafkaTransferMessages) {
+            log.debug("[onMessageSMS][thread:{} message：{}]", Thread.currentThread().getId(), kafkaTransferMessage);
 
-        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
-        String formattedTransferAmount = decimalFormat.format(kafkaTransferMessage.getTransferAmount());
-        String formattedFromAccountBalance = decimalFormat.format(kafkaTransferMessage.getFromAccountBalance());
-        String formattedToAccountBalance = decimalFormat.format(kafkaTransferMessage.getToAccountBalance());
+            DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+            String formattedTransferAmount = decimalFormat.format(kafkaTransferMessage.getTransferAmount());
+            String formattedFromAccountBalance = decimalFormat.format(kafkaTransferMessage.getFromAccountBalance());
+            String formattedToAccountBalance = decimalFormat.format(kafkaTransferMessage.getToAccountBalance());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        String formattedTime = kafkaTransferMessage.getTransferTime().format(formatter);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            String formattedTime = kafkaTransferMessage.getTransferTime().format(formatter);
 
-        String fromContent = String.format("Your account had RMB %s transferred out at %s. Current balance：RMB %s",
-                formattedTransferAmount,
-                formattedTime,
-                formattedFromAccountBalance);
+            String fromContent = String.format("Your account had RMB %s transferred out at %s. Current balance：RMB %s",
+                    formattedTransferAmount,
+                    formattedTime,
+                    formattedFromAccountBalance);
 
-        smsService.sendSms(kafkaTransferMessage.getFromCustomerMobile(), fromContent);
+            smsService.sendSms(kafkaTransferMessage.getFromCustomerMobile(), fromContent);
 
-        String toContent = String.format("Your account received a transfer of RMB %s at %s. Current balance：RMB %s",
-                formattedTransferAmount,
-                formattedTime,
-                formattedToAccountBalance);
+            String toContent = String.format("Your account received a transfer of RMB %s at %s. Current balance：RMB %s",
+                    formattedTransferAmount,
+                    formattedTime,
+                    formattedToAccountBalance);
 
-        smsService.sendSms(kafkaTransferMessage.getToCustomerMobile(), toContent);
+            smsService.sendSms(kafkaTransferMessage.getToCustomerMobile(), toContent);
+        }
+
     }
 
     @KafkaListener(topics = KafkaPurchaseMessage.TOPIC,
             groupId = "consumer-group-sms-purchase" + KafkaPurchaseMessage.TOPIC)
-    public void onPurchaseMessage(KafkaPurchaseMessage kafkaPurchaseMessage) {
-        log.debug("[onMessageSMS][thread:{} message：{}]", Thread.currentThread().getId(), kafkaPurchaseMessage);
+    public void onPurchaseMessage(List<KafkaPurchaseMessage> kafkaPurchaseMessages) {
+        for (KafkaPurchaseMessage kafkaPurchaseMessage: kafkaPurchaseMessages) {
+            log.debug("[onMessageSMS][thread:{} message：{}]", Thread.currentThread().getId(), kafkaPurchaseMessage);
 
-        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
-        String formattedPurchaseAmount = decimalFormat.format(kafkaPurchaseMessage.getPurchaseAmount());
+            DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+            String formattedPurchaseAmount = decimalFormat.format(kafkaPurchaseMessage.getPurchaseAmount());
 //        String formattedFromAccountBalance = decimalFormat.format(kafkaPurchaseMessage.getFromAccountBalance());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        String formattedTime = kafkaPurchaseMessage.getPurchaseTime().format(formatter);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            String formattedTime = kafkaPurchaseMessage.getPurchaseTime().format(formatter);
 
-        String fromContent = String.format("Your account purchased product %s for RMB %s at %s. Current balance：RMB %s",
-                kafkaPurchaseMessage.getProductId(),
-                formattedPurchaseAmount,
-                formattedTime,
-                kafkaPurchaseMessage.getAccountBalance());
+            String fromContent = String.format("Your account purchased product %s for RMB %s at %s. Current balance：RMB %s",
+                    kafkaPurchaseMessage.getProductId(),
+                    formattedPurchaseAmount,
+                    formattedTime,
+                    kafkaPurchaseMessage.getAccountBalance());
 
-        smsService.sendSms(kafkaPurchaseMessage.getMobile(), fromContent);
+            smsService.sendSms(kafkaPurchaseMessage.getMobile(), fromContent);
+        }
+
     }
 }
