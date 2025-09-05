@@ -33,7 +33,7 @@ public class TransferValidator {
             throw new BusinessException("INVALID_FIELD", "Transfer amount must be > 0");
         }
         if (request.getTransferTraceId() == null || request.getTransferTraceId().trim().isEmpty()) {
-            throw new BusinessException("INVALID_FIELD", "Transaction Trace Id must not be empty");
+            throw new BusinessException("INVALID_FIELD", "Transfer Trace Id must not be empty");
         }
     }
 

@@ -51,16 +51,16 @@ public class KafkaMessageSMSConsumer {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         String formattedTime = kafkaTransferMessage.getTransferTime().format(formatter);
 
-        String fromContent = String.format("Your account %s has transfer out amount：%s，balance：%s",
-                formattedTime,
+        String fromContent = String.format("Your account had RMB %s transferred out at %s. Current balance：RMB %s",
                 formattedTransferAmount,
+                formattedTime,
                 formattedFromAccountBalance);
 
         smsService.sendSms(kafkaTransferMessage.getFromCustomerMobile(), fromContent);
 
-        String toContent = String.format("Your account %s has transfer in amount：%s，balance：%s",
-                formattedTime,
+        String toContent = String.format("Your account received a transfer of RMB %s at %s. Current balance：RMB %s",
                 formattedTransferAmount,
+                formattedTime,
                 formattedToAccountBalance);
 
         smsService.sendSms(kafkaTransferMessage.getToCustomerMobile(), toContent);
@@ -78,10 +78,10 @@ public class KafkaMessageSMSConsumer {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         String formattedTime = kafkaPurchaseMessage.getPurchaseTime().format(formatter);
 
-        String fromContent = String.format("Your account %s has purchase product %s, amount：%s，balance：%s",
-                formattedTime,
+        String fromContent = String.format("Your account purchased product %s for RMB %s at %s. Current balance：RMB %s",
                 kafkaPurchaseMessage.getProductId(),
                 formattedPurchaseAmount,
+                formattedTime,
                 kafkaPurchaseMessage.getAccountBalance());
 
         smsService.sendSms(kafkaPurchaseMessage.getMobile(), fromContent);

@@ -37,7 +37,7 @@ public class ProductPurchaseValidator {
             throw new BusinessException("INVALID_FIELD", "Purchase amount must > 0");
         }
         if (request.getTransactionTraceId() == null || request.getTransactionTraceId().trim().isEmpty()) {
-            throw new BusinessException("INVALID_FIELD", "Transaction Trace Id must not be empty");
+            throw new BusinessException("INVALID_FIELD", "Purchase Trace Id must not be empty");
         }
 
         // 2. validate product

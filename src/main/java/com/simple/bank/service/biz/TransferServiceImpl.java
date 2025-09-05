@@ -2,6 +2,7 @@ package com.simple.bank.service.biz;
 
 import com.simple.bank.api.request.TransactionRequest;
 import com.simple.bank.api.request.TransferRequest;
+import com.simple.bank.config.ApplicationConfig;
 import com.simple.bank.converter.TransferConverter;
 import com.simple.bank.dto.AccountTransactionDTO;
 import com.simple.bank.dto.CustomerDTO;
@@ -14,6 +15,7 @@ import com.simple.bank.service.redis.RedissionLock;
 import com.simple.bank.validator.TransferValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -21,6 +23,11 @@ import java.time.LocalDateTime;
 @Slf4j
 @Service
 public class TransferServiceImpl implements TransferService {
+// directly load 1 parameter from application.yml
+//    @Value("${simple.bank.lock.enableLockforTransfer}")
+//    private boolean enableLockforTransfer;
+    @Autowired
+    private ApplicationConfig applicationConfig;
 
     @Autowired
     private TransferMapper transferMapper;
@@ -52,14 +59,20 @@ public class TransferServiceImpl implements TransferService {
         // 1. Basic input validation
         transferValidator.validateBasicInput(request);
 
-        // 2. lock from/to account (smaller one first, then bigger one) - avoid deadlock
-        //    execute core transfer logic - doTransfer
-        return redissionLock.lockTwoAccounts(
-                request.getFromAccountId(),
-                request.getToAccountId(),
-                500L, // 最多等待500ms
-                () -> doTransfer(request) // 加锁后执行的业务逻辑
-        );
+        if (applicationConfig.getLock().isEnableLockforTransfer()) {
+            log.info("lock enabled for transfer");
+            // 2. lock from/to account (smaller one first, then bigger one) - avoid deadlock
+            //    execute core transfer logic - doTransfer
+            return redissionLock.lockTwoAccounts(
+                    request.getFromAccountId(),
+                    request.getToAccountId(),
+                    500L, // 最多等待500ms
+                    () -> doTransfer(request) // 加锁后执行的业务逻辑
+            );
+        } else {
+            log.info("lock disabled for transfer");
+            return (doTransfer(request));
+        }
     }
 
     public TransferDTO doTransfer(TransferRequest request) {

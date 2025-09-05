@@ -56,7 +56,6 @@ public class ProductServiceImpl implements ProductService {
             throw new BusinessException("INVALID_PARAM", "Product ID cannot be null");
         }
 
-        // get from DB if not in redis
         ProductEntity productEntity = productMapper.getProductById(productId);
         if (productEntity == null) {
             throw new BusinessException("PRODUCT_NOT_FOUND", "Financial product with id " + productId + " not found");
@@ -69,14 +68,18 @@ public class ProductServiceImpl implements ProductService {
         if (productDTO.getIsHot() != null && productDTO.getIsHot() > 0) {
             BigDecimal cachedRemainingAmount = productRedisService.getProductStockById(productId);
             if (cachedRemainingAmount == null) {
-                // Redis缓存未命中，触发实时预热（避免缓存穿透）
+                // not in redis，trigger warmup now
                 log.warn("Hot product Redis not hit，trigger warm up now，productId: {}", productId);
                 productStockWarmupService.warmupProductStock(productId);
                 // inquire redis again in case other txn has updated remaining amount in redis after warmup above
                 cachedRemainingAmount = productRedisService.getProductStockById(productId);
             }
-
-            productDTO.setRemainingAmount(cachedRemainingAmount);
+            if (cachedRemainingAmount != null) {
+                productDTO.setRemainingAmount(cachedRemainingAmount);
+            } else {
+                //Fall back to DB
+                log.warn("Hot product redis issue, pls check backend, productId: {}", productId);
+            }
         }
 
         return productDTO;

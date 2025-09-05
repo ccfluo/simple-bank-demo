@@ -74,3 +74,9 @@ management:
   endpoint:
     configprops:
       show-values: always  # 显示配置值（默认只显示键）
+
+#application parameters
+simple:
+  bank:
+    lock:
+      enableLockforTransfer: false

@@ -105,3 +105,22 @@ CREATE TABLE `transfer_history` (
   CONSTRAINT `fk_to_account` FOREIGN KEY (`to_account_id`) REFERENCES `account` (`account_id`),
   CONSTRAINT `ck_amount_positive` CHECK ((`transfer_amount` > 0))
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='transfer history table';
+
+
+-- simplebank.sys_config definition
+
+CREATE TABLE `sys_config` (
+  `config_id` bigint NOT NULL AUTO_INCREMENT,
+  `config_key` varchar(100) NOT NULL,
+  `config_key_seq` int NOT NULL DEFAULT '1',
+  `config_value` varchar(2000) NOT NULL,
+  `description` varchar(500) DEFAULT '',
+  `created_by` varchar(50) DEFAULT 'system',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` varchar(50) DEFAULT 'system',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `version` int DEFAULT '0',
+  PRIMARY KEY (`config_id`),
+  UNIQUE KEY `idx_config_key_seq` (`config_key`,`config_key_seq`),
+  KEY `idx_config_key` (`config_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

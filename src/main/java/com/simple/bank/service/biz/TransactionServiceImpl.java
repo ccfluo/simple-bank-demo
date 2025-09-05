@@ -85,7 +85,6 @@ public class TransactionServiceImpl implements TransactionService {
         accountUpdateRequest.setAccount(accountDTO);
 
         AccountDTO updatedAccountDTO = accountMaintService.updateAccount(accountUpdateRequest);
-        log.info("###phoebe: " + updatedAccountDTO);
 
         //log transaction to transaction history
         AccountTransaction accountTransaction = new AccountTransaction();
