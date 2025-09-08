@@ -3,7 +3,6 @@ package com.simple.bank.service.redis;
 import com.simple.bank.api.request.RankingScoreIncreaseRequest;
 import com.simple.bank.api.request.RankingScoreUpdateRequest;
 import com.simple.bank.dto.RankingDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,7 +32,7 @@ public class RedisRankingServiceImpl implements RedisRankingService {
     public RankingDTO addOrUpdateScore(RankingScoreUpdateRequest rankingScoreUpdateRequest) {
         // 添加或更新分数，zAdd返回值为1表示新添加，0表示更新
         String clientId = rankingScoreUpdateRequest.getClientId();
-        Double score = rankingScoreUpdateRequest.getScore();
+        double score = rankingScoreUpdateRequest.getScore();
         redisTemplate.opsForZSet().add(RANKING_KEY, clientId, score);
         RankingDTO rankingDTO = new RankingDTO();
         // 返回用户排名(从0开始)，zRank是升序排名，zReverseRank是降序排名
@@ -51,7 +50,7 @@ public class RedisRankingServiceImpl implements RedisRankingService {
      */
     public RankingDTO incrementScore(RankingScoreIncreaseRequest rankingScoreIncreaseRequest) {
         String clientId = rankingScoreIncreaseRequest.getClientId();
-        Double increment = rankingScoreIncreaseRequest.getIncrementScore();
+        double increment = rankingScoreIncreaseRequest.getIncrementScore();
         Double score = redisTemplate.opsForZSet().incrementScore(RANKING_KEY, clientId, increment);
         RankingDTO rankingDTO = new RankingDTO();
         rankingDTO.setScore(score == null ? 0.0:score);

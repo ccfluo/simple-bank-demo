@@ -9,6 +9,4 @@ public class PageInfo {
     private long total; //total records
     private boolean hasMore;
 
-    public void isHasMore(boolean b) {
-    }
 }

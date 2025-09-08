@@ -2,9 +2,7 @@ package com.simple.bank.service.redis;
 
 import com.simple.bank.api.response.ListOfLikedUserResponse;
 import com.simple.bank.dto.LikeRankDTO;
-
 import java.util.List;
-import java.util.Map;
 
 public interface LikeService {
     boolean like(String contentId, String userId);

@@ -6,9 +6,8 @@ import com.simple.bank.dto.Response;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
-import java.util.Map;
+
 
 @Slf4j
 @JsonPropertyOrder({"response", "contentId", "userId"})
