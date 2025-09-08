@@ -19,5 +19,9 @@ logging:
     org:
       springframework:
         kafka: ERROR
+#        beans:
+#          factory: DEBUG
+#        context:
+#          annotation: DEBUG
       apache:
        kafka: ERROR

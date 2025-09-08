@@ -12,7 +12,8 @@ This is the demo banking backend application, built using Spring Boot. It provid
 | 0.4     | 2025/08/24 | **New function:** <br> - generate transaction summary report at 2am daily                                                                                                              |
 | 0.5     | 2025/08/28 | **New function:** <br> - Wealth product purchase <br> - Money Transfer                                                                                                                 |
 | 0.6     | 2025/08/30 | **New function:** <br> - Warm up hot products' information to redis <br> **Function Enhancement:** <br> - Enable support for high concurrency in hot wealth product purchase scenarios |
-| 0.7     | 2025/09/05 | **Function Enhancement:** <br> - Support batch or real time SMS/Email notification                                                                                               |
+| 0.7     | 2025/09/05 | **Function Enhancement:** <br> - Support batch or real time SMS/Email notification                                                                                                     |
+ 0.8      | 2025/09/08 | **New infra Function API:** <br> - Redis to support ranking/like                                                                                                                       |
 
 
 ## Features
@@ -34,7 +35,6 @@ This is the demo banking backend application, built using Spring Boot. It provid
 - Purchase wealth product: send an SMS/Email notification for transfer.
 - Retrieve wealth product details.
 - Preload hot products' information into redis.
-
 
 ## Technologies Used
 - **Spring Boot**: Framework for building the backend application.
@@ -89,6 +89,23 @@ The application will start on `http://localhost:8886`.
 - **GET /product/{productId}**: Retrieve details of a specific product.
 - **GET /product/on-sale**: List all wealth products on Sale.
 - **GET /product/purchase/history/{customerId}**: Retrieve all purchase history for a given customer.
+
+### Ranking
+- **POST /api/ranking/score**: add/update ranking.
+- **POST /api/ranking/score/increment**: increase score
+- **GET /api/ranking/score/{clientId}**: inquire client score
+- **GET /api/ranking/rank/{clientId}**: inquire client rank
+- **GET /api/ranking/top/{topN}**: get topN rank clients
+- **GET /api/ranking/around/{clientId}**: get other rank around clients
+- **GET /api/ranking/total**： get total client ranked
+- 
+### Like
+- **POST /api/likes/{contentId}/like?userId={userId}**: like a contendId.
+- **POST /api/likes/{contentId}/cancel?userId={userId}**: cancel a like
+- **GET /api/likes/{contentId}/count**: inquire like count
+- **GET /api/likes/{contentId}/check?userId={userId}**: check if user liked contentId
+- **GET /api/likes/{contentId}/users**: get liked users
+- **GET /api/likes/rank?topN=10**: get topN liked
 
 
 ## Exception Handling

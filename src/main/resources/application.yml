@@ -74,7 +74,8 @@ management:
   endpoints:
     web:
       exposure:
-        include: configprops  # 暴露配置端点
+        include: "*"
+#        include: configprops  # 暴露配置端点
   endpoint:
     configprops:
       show-values: always  # 显示配置值（默认只显示键）
