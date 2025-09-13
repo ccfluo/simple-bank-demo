@@ -21,10 +21,10 @@ public class SimpleBankDemoApplication {
     //    @Autowired
     private ApplicationContext applicationContext;
 
-    // 構造器注入
-    public SimpleBankDemoApplication(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
+//    // 構造器注入
+//    public SimpleBankDemoApplication(ApplicationContext applicationContext) {
+//        this.applicationContext = applicationContext;
+//    }
 
     public static void main(String[] args) {
         System.setProperty("project.name", "simplebank"); //phoebe : sentinel setup

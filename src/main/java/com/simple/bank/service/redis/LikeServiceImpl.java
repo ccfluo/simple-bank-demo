@@ -48,7 +48,7 @@ public class LikeServiceImpl implements LikeService {
         }
 
         // 3. update redis to like（多命令原子性保证）
-        redisTemplate.executePipelined(new SessionCallback<Object>() {
+        redisTemplate.executePipelined(new SessionCallback< Object>() {
             @Override
             public Object execute(RedisOperations operations) {
                 //update redis Hash key - "like:status:{contentId}" | field - userId | value - 1

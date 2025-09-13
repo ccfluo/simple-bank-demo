@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/customers")
 public class CustomerMaintController {
     @Autowired
     private CustomerMaintService service;

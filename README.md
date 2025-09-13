@@ -63,32 +63,32 @@ The application will start on `http://localhost:8886`.
 #### api prefix /admin is configured for all controllers
 
 ### Customer Management
-- **GET /customer/all**: Retrieve a list of all customers.
-- **GET /customer/{customerId}**: Retrieve details of a specific customer by ID.
-- **POST /customer/create**: Open a new customer.
-- **POST /customer/update**: Update an existing customer.
-- **DELETE /customer/{customerId}**: Delete a customer.
+- **GET /customers/all**: Retrieve a list of all customers.
+- **GET /customers/{customerId}**: Retrieve details of a specific customer by ID.
+- **POST /customers/create**: Open a new customer.
+- **POST /customers/update**: Update an existing customer.
+- **DELETE /customers/{customerId}**: Delete a customer.
 
 ### Bank Account Management
-- **GET /account/{accountId}**: Retrieve details of a specific bank account by ID.
-- **GET /account/all**: Retrieve a list of all bank accounts.
-- **GET /account/bycustomer?id={customerId}**: Retrieve all bank accounts for a given customer.
-- **POST /account/create**: Open an account.
-- **POST /account/update**: Update an existing account.
-- **DELETE /customer/{customerId}**: Delete an account.
+- **GET /accounts/{accountId}**: Retrieve details of a specific bank account by ID.
+- **GET /accounts/all**: Retrieve a list of all bank accounts.
+- **GET /accounts/bycustomer?id={customerId}**: Retrieve all bank accounts for a given customer.
+- **POST /accounts/create**: Open an account.
+- **POST /accounts/update**: Update an existing account.
+- **DELETE /customers/{customerId}**: Delete an account.
 
 ### Transaction Management
-- **POST /transaction/withdraw**: Withdraw money from a banking account.
-- **POST /transaction/deposit**: Deposit money to a banking account.
-- **GET /transaction/history/customer?id={customerId}**: Retrieve the transaction history for a given customer.
-- **GET /transaction/history/account?id={accountId}**: Retrieve the transaction history for a given account.
-- **POST /transaction/transfer**: Transfer money to other account
+- **POST /transactions/withdraw**: Withdraw money from a banking account.
+- **POST /transactions/deposit**: Deposit money to a banking account.
+- **GET /transactions/history/customer?id={customerId}**: Retrieve the transaction history for a given customer.
+- **GET /transactions/history/account?id={accountId}**: Retrieve the transaction history for a given account.
+- **POST /transactions/transfer**: Transfer money to other account
 
 ### Wealth Management
-- **POST /product/purchase**: Purchase a wealth product.
-- **GET /product/{productId}**: Retrieve details of a specific product.
-- **GET /product/on-sale**: List all wealth products on Sale.
-- **GET /product/purchase/history/{customerId}**: Retrieve all purchase history for a given customer.
+- **POST /products/purchase**: Purchase a wealth product.
+- **GET /products/{productId}**: Retrieve details of a specific product.
+- **GET /products/on-sale**: List all wealth products on Sale.
+- **GET /products/purchase/history/{customerId}**: Retrieve all purchase history for a given customer.
 
 ### Ranking
 - **POST /api/ranking/score**: add/update ranking.

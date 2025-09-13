@@ -4,31 +4,32 @@ import com.simple.bank.dto.AccountTransactionDTO;
 import com.simple.bank.dto.CustomerDTO;
 import com.simple.bank.entity.ProductPurchaseEntity;
 import com.simple.bank.entity.TransferEntity;
-import com.simple.bank.message.KafkaPurchaseMessage;
-import com.simple.bank.message.KafkaTransactionMessage;
-import com.simple.bank.message.KafkaTransferMessage;
-import com.simple.bank.service.kafka.KafkaMessageProducer;
+import com.simple.bank.message.PurchaseMessage;
+import com.simple.bank.message.TransactionMessage;
+import com.simple.bank.message.TransferMessage;
+import com.simple.bank.service.mq.MessageQueueProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 
 @Service
-public class MessageNotificationImpl implements MessageNotification {
+public class MessageNotificationImpl implements MessageNotification{
 
     @Autowired
-    KafkaMessageProducer kafkaMessageProducer;
+    MessageQueueProducer messageQueueProducer;
     public void sendTransactionNotification(AccountTransactionDTO accountTransactionDTO, String mobile, String email) {
-        KafkaTransactionMessage kafkaTransactionMessage = new KafkaTransactionMessage();
-        kafkaTransactionMessage.setTransactionId(accountTransactionDTO.getTransactionId());
-        kafkaTransactionMessage.setAccountId(accountTransactionDTO.getAccountId());
-        kafkaTransactionMessage.setTransactionType(accountTransactionDTO.getTransactionType());
-        kafkaTransactionMessage.setAmount(accountTransactionDTO.getTransactionAmount());
-        kafkaTransactionMessage.setBalanceAfter(accountTransactionDTO.getAccountBalance());
-        kafkaTransactionMessage.setTransactionTime(accountTransactionDTO.getTransactionDate());
-        kafkaTransactionMessage.setMobile(mobile);
-        kafkaTransactionMessage.setEmail(email);
+        TransactionMessage transactionMessage = new TransactionMessage();
+        transactionMessage.setTransactionId(accountTransactionDTO.getTransactionId());
+        transactionMessage.setAccountId(accountTransactionDTO.getAccountId());
+        transactionMessage.setTransactionType(accountTransactionDTO.getTransactionType());
+        transactionMessage.setAmount(accountTransactionDTO.getTransactionAmount());
+        transactionMessage.setBalanceAfter(accountTransactionDTO.getAccountBalance());
+        transactionMessage.setTransactionTime(accountTransactionDTO.getTransactionDate());
+        transactionMessage.setMobile(mobile);
+        transactionMessage.setEmail(email);
 
-        kafkaMessageProducer.asyncSendTransactionMessage(kafkaTransactionMessage);
+        messageQueueProducer.asyncSend(transactionMessage.TOPIC, transactionMessage);
     }
 
     @Override
@@ -37,26 +38,26 @@ public class MessageNotificationImpl implements MessageNotification {
                                          CustomerDTO toCustomerDTO,
                                          BigDecimal fromAccountBalance,
                                          BigDecimal toAccountBalance) {
-        KafkaTransferMessage kafkaTransferMessage = new KafkaTransferMessage();
-        kafkaTransferMessage.setTransferId(transferEntity.getTransferId());
+        TransferMessage transferMessage = new TransferMessage();
+        transferMessage.setTransferId(transferEntity.getTransferId());
 
-        kafkaTransferMessage.setFromCustomerId(fromCustomerDTO.getCustomerId());
-        kafkaTransferMessage.setFromAccountId(transferEntity.getFromAccountId());
-        kafkaTransferMessage.setFromAccountBalance(fromAccountBalance);
-        kafkaTransferMessage.setFromCustomerMobile(fromCustomerDTO.getMobile());
-        kafkaTransferMessage.setFromCustomerEmail(fromCustomerDTO.getEmail());
+        transferMessage.setFromCustomerId(fromCustomerDTO.getCustomerId());
+        transferMessage.setFromAccountId(transferEntity.getFromAccountId());
+        transferMessage.setFromAccountBalance(fromAccountBalance);
+        transferMessage.setFromCustomerMobile(fromCustomerDTO.getMobile());
+        transferMessage.setFromCustomerEmail(fromCustomerDTO.getEmail());
 
-        kafkaTransferMessage.setToCustomerId(toCustomerDTO.getCustomerId());
-        kafkaTransferMessage.setToAccountId(transferEntity.getToAccountId());
-        kafkaTransferMessage.setToAccountBalance(toAccountBalance);
-        kafkaTransferMessage.setToCustomerMobile(toCustomerDTO.getMobile());
-        kafkaTransferMessage.setToCustomerEmail(toCustomerDTO.getEmail());
+        transferMessage.setToCustomerId(toCustomerDTO.getCustomerId());
+        transferMessage.setToAccountId(transferEntity.getToAccountId());
+        transferMessage.setToAccountBalance(toAccountBalance);
+        transferMessage.setToCustomerMobile(toCustomerDTO.getMobile());
+        transferMessage.setToCustomerEmail(toCustomerDTO.getEmail());
 
-        kafkaTransferMessage.setTransferType(transferEntity.getTransactionType());
-        kafkaTransferMessage.setTransferAmount(transferEntity.getTransferAmount());
-        kafkaTransferMessage.setTransferTime(transferEntity.getTransferTime());
+        transferMessage.setTransferType(transferEntity.getTransactionType());
+        transferMessage.setTransferAmount(transferEntity.getTransferAmount());
+        transferMessage.setTransferTime(transferEntity.getTransferTime());
 
-        kafkaMessageProducer.asyncSendTransferMessage(kafkaTransferMessage);
+        messageQueueProducer.asyncSend(transferMessage.TOPIC, transferMessage);
 
     }
 
@@ -64,20 +65,20 @@ public class MessageNotificationImpl implements MessageNotification {
     public void sendPurchaseNotification(ProductPurchaseEntity purchaseEntity,
                                          BigDecimal accountBalance,
                                          String mobile, String email) {
-        KafkaPurchaseMessage kafkaPurchaseMessage = new KafkaPurchaseMessage();
-        kafkaPurchaseMessage.setPurchaseId(purchaseEntity.getPurchaseId());
-        kafkaPurchaseMessage.setProductId(purchaseEntity.getProductId());
-        kafkaPurchaseMessage.setCustomerId(purchaseEntity.getCustomerId());
-        kafkaPurchaseMessage.setAccountId(purchaseEntity.getAccountId());
-        kafkaPurchaseMessage.setPurchaseAmount(purchaseEntity.getPurchaseAmount());
-        kafkaPurchaseMessage.setPurchaseTime(purchaseEntity.getPurchaseTime());
-        kafkaPurchaseMessage.setStatus(purchaseEntity.getStatus());
-        kafkaPurchaseMessage.setTransactionTraceId(purchaseEntity.getTransactionTraceId());
-        kafkaPurchaseMessage.setMobile(mobile);
-        kafkaPurchaseMessage.setEmail(email);
-        kafkaPurchaseMessage.setAccountBalance(accountBalance);
+        PurchaseMessage purchaseMessage = new PurchaseMessage();
+        purchaseMessage.setPurchaseId(purchaseEntity.getPurchaseId());
+        purchaseMessage.setProductId(purchaseEntity.getProductId());
+        purchaseMessage.setCustomerId(purchaseEntity.getCustomerId());
+        purchaseMessage.setAccountId(purchaseEntity.getAccountId());
+        purchaseMessage.setPurchaseAmount(purchaseEntity.getPurchaseAmount());
+        purchaseMessage.setPurchaseTime(purchaseEntity.getPurchaseTime());
+        purchaseMessage.setStatus(purchaseEntity.getStatus());
+        purchaseMessage.setTransactionTraceId(purchaseEntity.getTransactionTraceId());
+        purchaseMessage.setMobile(mobile);
+        purchaseMessage.setEmail(email);
+        purchaseMessage.setAccountBalance(accountBalance);
 
-        kafkaMessageProducer.asyncSendPurchaseMessage(kafkaPurchaseMessage);
+        messageQueueProducer.asyncSend(purchaseMessage.TOPIC, purchaseMessage);
 
     }
 }

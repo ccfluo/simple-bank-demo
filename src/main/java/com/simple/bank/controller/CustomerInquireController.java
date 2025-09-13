@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/customers")
 public class CustomerInquireController {
     @Autowired
     private CustomerInquireService service;

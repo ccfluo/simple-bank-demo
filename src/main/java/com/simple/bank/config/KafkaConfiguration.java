@@ -4,14 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.*;
+import org.springframework.util.backoff.BackOff;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 @Configuration
-public class KafkaMetadataConfig {
+public class KafkaConfiguration {
 
     private static final List<String> TOPIC_NAMES = Arrays.asList(
             "transaction_topic",
@@ -45,5 +49,15 @@ public class KafkaMetadataConfig {
                 // throw new RuntimeException("Kafka metadata initialization failed", e);
             }
         };
+    }
+
+    @Bean
+    public DefaultErrorHandler  kafkaErrorHandler(KafkaTemplate<?, ?> template) {
+        // <1> create DeadLetterPublishingRecoverer class  dead letter topic: topic_name-dlt
+        ConsumerRecordRecoverer recoverer = new DeadLetterPublishingRecoverer(template);
+        // <2> create FixedBackOff class - retry 3 times with interval 10s
+        BackOff backOff = new FixedBackOff(10 * 1000L, 3L);
+        // <3> create DefaultErrorHandler class
+        return new DefaultErrorHandler(recoverer, backOff);
     }
 }

@@ -23,9 +23,14 @@ spring:
       retry-backoff-ms: 100  #重试间隔
       key-serializer: org.apache.kafka.common.serialization.StringSerializer # 消息的 key 的序列化
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer # 消息的 value 的序列化
+      batch-size: 16384 # 每次批量发送消息的最大数量
+      buffer-memory: 33554432 # 每次批量发送消息的最大内存
+      properties:
+        linger:
+          ms: 30000 # 批处理延迟时间上限。这里配置为 30 * 1000 ms 过后，不管是否消息数量是否到达 batch-size 或者消息大小到达 buffer-memory 后，都直接发送一次请求。
     # Kafka Consumer 配置项
     consumer:
-      auto-offset-reset: earliest # 设置消费者分组最初的消费进度为 earliest
+      auto-offset-reset: latest # 设置消费者分组最初的消费进度为 latest:各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，消费新产生的该分区下的数据
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       fetch-max-wait: 10000 # poll 一次拉取的阻塞的最大时长，单位：毫秒。这里指的是阻塞拉取需要满足至少 fetch-min-size 大小的消息
@@ -47,6 +52,8 @@ spring:
       metadata.max.retries: 3  # 重试次数
       socket.connection.setup.timeout.ms: 5000  # 连接建立超时（默认10秒，改为5秒）
       socket.connection.setup.timeout.max.ms: 5000  # 连接建立最大超时（避免累积重试）
+
+
   quartz:
     job-store-type: memory # Job 存储器类型。默认为 memory 表示内存，可选 jdbc 使用数据库。
     auto-startup: true # Quartz 是否自动启动
@@ -68,6 +75,26 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true  # 开启下划线转驼峰映射
 
+#rocketmq:
+#  name-server: 127.0.0.1:9876 # RocketMQ Namesrv
+#  # Producer 配置项
+#  producer:
+#    group: demo-producer-group # 生产者分组
+#    send-message-timeout: 3000 # 发送消息超时时间，单位：毫秒。默认为 3000 。
+#    compress-message-body-threshold: 4096 # 消息压缩阀值，当消息体的大小超过该阀值后，进行消息压缩。默认为 4 * 1024B
+#    max-message-size: 4194304 # 消息体的最大允许大小。。默认为 4 * 1024 * 1024B
+#    retry-times-when-send-failed: 2 # 同步发送消息时，失败重试次数。默认为 2 次。
+#    retry-times-when-send-async-failed: 2 # 异步发送消息时，失败重试次数。默认为 2 次。
+#    retry-next-server: false # 发送消息给 Broker 时，如果发送失败，是否重试另外一台 Broker 。默认为 false
+#    access-key: # Access Key ，可阅读 https://github.com/apache/rocketmq/blob/master/docs/cn/acl/user_guide.md 文档
+#    secret-key: # Secret Key
+#    enable-msg-trace: true # 是否开启消息轨迹功能。默认为 true 开启。可阅读 https://github.com/apache/rocketmq/blob/master/docs/cn/msg_trace/user_guide.md 文档
+#    customized-trace-topic: RMQ_SYS_TRACE_TOPIC # 自定义消息轨迹的 Topic 。默认为 RMQ_SYS_TRACE_TOPIC 。
+#  # Consumer 配置项
+#  consumer:
+#    listeners: # 配置某个消费分组，是否监听指定 Topic 。结构为 Map<消费者分组, <Topic, Boolean>> 。默认情况下，不配置表示监听。
+#      test-consumer-group:
+#        topic1: false # 关闭 test-consumer-group 对 topic1 的监听消费
 
 #debug: true
 management:
@@ -75,7 +102,7 @@ management:
     web:
       exposure:
         include: "*"
-#        include: configprops  # 暴露配置端点
+  #        include: configprops  # 暴露配置端点
   endpoint:
     configprops:
       show-values: always  # 显示配置值（默认只显示键）

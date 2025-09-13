@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/accounts")
 public class AccountMaintController {
     @Autowired
     private AccountMaintService service;

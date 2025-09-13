@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaTransactionMessage {
+public class TransactionMessage {
     public static final String TOPIC = "transaction_topic";
 
     private Long transactionId;

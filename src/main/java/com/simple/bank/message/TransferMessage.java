@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class KafkaTransferMessage {
+public class TransferMessage {
     public static final String TOPIC = "transfer_topic";
 
     private Long transferId;
