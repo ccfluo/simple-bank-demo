@@ -125,7 +125,8 @@ CREATE TABLE `wealth_product` (
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `is_hot` tinyint DEFAULT '0',
   PRIMARY KEY (`product_id`),
-  UNIQUE KEY `uidx_product_code` (`product_code`)
+  UNIQUE KEY `uidx_product_code` (`product_code`),
+  CONSTRAINT `chk_product_remaining_amount` CHECK ((`remaining_amount` >= 0))
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- simplebank.sys_config definition
